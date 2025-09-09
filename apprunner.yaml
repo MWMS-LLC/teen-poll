@@ -2,9 +2,26 @@ version: 1.0
 runtime: python3
 build:
   commands:
-    build: pip3.11 install -r requirements.txt
+    build: pip install -r backend/requirements.txt
 run:
   runtime-version: 3.11
-  command: python3.11 main.py
+  command: python backend/main.py
   network:
     port: 8080
+  env:
+    - name: DB_HOST
+      value: database-1.c320aqgmywbc.us-east-2.rds.amazonaws.com
+    - name: DB_PORT
+      value: "5432"
+    - name: DB_NAME
+      value: postgres
+    - name: DB_USER
+      value: postgres
+    - name: DB_PASSWORD
+      value: NBem0YTOfN94yKqFSw5F
+    - name: PORT
+      value: "8080"
+    - name: LOG_LEVEL
+      value: INFO
+    - name: FRONTEND_URL
+      value: https://your-frontend-domain.com
