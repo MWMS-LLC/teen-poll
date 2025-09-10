@@ -1,6 +1,13 @@
+import sys
 from fastapi import FastAPI
 
 app = FastAPI()
+
+
+@app.get("/py-version")
+def py_version():
+    return {"python_version": sys.version}
+
 
 @app.get("/health")
 def health():
