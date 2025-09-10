@@ -2,7 +2,7 @@ version: 1.0
 runtime: python3
 build:
   commands:
-    build: pip install -r backend/requirements.txt
+    - pip install -r backend/requirements.txt
 run:
   runtime-version: 3.11
   command: python backend/main.py
