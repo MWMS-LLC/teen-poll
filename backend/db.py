@@ -1,77 +1,46 @@
-import sqlite3
-import logging
-from contextlib import contextmanager
+# backend/db.py
 
-logger = logging.getLogger(__name__)
+# Step 1. Imports
+import os
+from dotenv import load_dotenv
+from sqlalchemy import create_engine, text
 
-# SQLite database file
-DATABASE_FILE = "teenpoll.db"
+# Step 2. Load environment variables from .env (local dev only)
+#         On AWS App Runner, you’ll set env vars in the console instead.
+load_dotenv()
 
-def get_db_connection():
-    """Get a database connection using SQLite"""
-    try:
-        conn = sqlite3.connect(DATABASE_FILE)
-        conn.row_factory = sqlite3.Row  # This makes results work like dictionaries
-        return conn
-    except Exception as e:
-        logger.error(f"Database connection failed: {e}")
-        raise
+# Step 3. Read environment variables
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT", "5432")
+DB_NAME = os.getenv("DB_NAME")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+USE_SSL = os.getenv("USE_SSL", "false").lower() == "true"
 
-@contextmanager
-def get_db_cursor():
-    """Context manager for database operations"""
-    conn = None
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        yield cursor
-        conn.commit()
-    except Exception as e:
-        if conn:
-            conn.rollback()
-        logger.error(f"Database operation failed: {e}")
-        raise
-    finally:
-        if conn:
-            conn.close()
+# Step 4. Build database URL
+db_url = f"postgresql+pg8000://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
-def execute_query(query, params=None, fetch=True):
-    """Execute a query and return results if fetch=True"""
-    try:
-        with get_db_cursor() as cursor:
-            if params:
-                cursor.execute(query, params)
-            else:
-                cursor.execute(query)
-            
-            if fetch:
-                result = cursor.fetchall()
-                return [dict(row) for row in result]
-            else:
-                return True
-                
-    except Exception as e:
-        logger.error(f"Query execution failed: {e}")
-        raise
+# Step 5. Decide connect_args (SSL or not)
+connect_args = {}
+if USE_SSL:
+    connect_args["ssl"] = True
 
-def execute_many(query, params_list):
-    """Execute a query with multiple parameter sets"""
-    try:
-        with get_db_cursor() as cursor:
-            cursor.executemany(query, params_list)
-            return True
-        
-    except Exception as e:
-        logger.error(f"Batch execution failed: {e}")
-        raise
+# Step 6. Create SQLAlchemy engine
+engine = create_engine(db_url, connect_args=connect_args, echo=False)
 
-def execute_script(script):
-    """Execute a SQL script containing multiple statements"""
-    try:
-        with get_db_cursor() as cursor:
-            cursor.executescript(script)
-            return True
-                
-    except Exception as e:
-        logger.error(f"Script execution failed: {e}")
-        raise
+# Step 7. Utility functions
+
+
+def check_connection():
+    """Return 1 if DB responds to SELECT 1."""
+    with engine.connect() as conn:
+        return conn.execute(text("SELECT 1")).scalar()
+
+
+def get_ssl_status():
+    """Return True if SSL is in use, False otherwise."""
+    with engine.connect() as conn:
+        result = conn.execute(text("""
+            SELECT ssl FROM pg_stat_ssl WHERE pid = pg_backend_pid()
+        """)).scalar()
+        return bool(result)
