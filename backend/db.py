@@ -6,11 +6,12 @@ from psycopg2 import pool
 from contextlib import contextmanager
 
 # Create a connection pool (min 1, max 10 connections)
-connection_pool = psycopg2.pool.SimpleConnectionPool(
+connection_pool = psycopg2.pool.ThreadedConnectionPool(
     minconn=1,
     maxconn=10,
     dsn=os.environ["DATABASE_URL"]
 )
+
 
 # Context manager to safely get and release a connection
 @contextmanager
