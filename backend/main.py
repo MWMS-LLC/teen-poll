@@ -14,9 +14,9 @@ app = FastAPI(
 # CORS setup
 origins = [
     "http://localhost:5173",
-    "https://qrmn9iihw9.us-east-2.awsapprunner.com",
     "https://myworldmysay.com",
     "https://www.myworldmysay.com",
+    "https://api.myworldmysay.com",
     "https://teen.myworldmysay.com"
 ]
 
