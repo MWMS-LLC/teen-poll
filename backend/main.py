@@ -72,8 +72,15 @@ def database_ssl_status():
 # ------------------ Categories ------------------
 @app.get("/api/categories")
 def get_categories():
-    query = "SELECT id, name, description FROM categories ORDER BY id"
-    return {"categories": execute_query(query)}
+    try:
+        query = "SELECT id, name, description FROM categories ORDER BY id"
+        result = execute_query(query)
+        return {"categories": result}
+    except Exception as e:
+        import logging
+        logging.error(f"❌ Error fetching categories: {e}")
+        return {"error": str(e)}
+
 
 # ------------------ Blocks ------------------
 @app.get("/api/categories/{category_id}/blocks")
