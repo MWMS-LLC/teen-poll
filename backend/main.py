@@ -4,17 +4,12 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from backend.db import connection_pool, db_check, db_ssl_status
 
+app = FastAPI()
 
-# Initialize FastAPI app
-app = FastAPI(
-    title="My World My Say API",
-    description="Backend API for My World My Say app",
-    version="1.0.0"
-)
-
-# CORS setup
+# ------------------ CORS setup ------------------
 origins = [
     "http://localhost:5173",
+    "http://127.0.0.1:5173",
     "https://myworldmysay.com",
     "https://www.myworldmysay.com",
     "https://api.myworldmysay.com",
@@ -29,20 +24,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Database query execution function
-
-# Replace your execute_query in main.py with this safer version
+# ------------------ DB helper (local to main.py) ------------------
 def execute_query(query: str, params: tuple = None, fetch: bool = True):
+    """
+    Execute a SQL query using the shared connection_pool from backend.db.
+    Returns list[dict] when fetch=True, otherwise commits and returns True.
+    """
     conn = None
     cursor = None
     try:
         conn = connection_pool.getconn()
         cursor = conn.cursor()
-        cursor.execute(query, params or ())
+        if params:
+            cursor.execute(query, params)
+        else:
+            cursor.execute(query)
+
         if fetch:
-            columns = [desc[0] for desc in cursor.description]
-            rows = cursor.fetchall()
-            return [dict(zip(columns, row)) for row in rows]
+            cols = [d[0] for d in cursor.description] if cursor.description else []
+            rows = cursor.fetchall() if cursor.description else []
+            return [dict(zip(cols, row)) for row in rows]
         else:
             conn.commit()
             return True
@@ -53,7 +54,7 @@ def execute_query(query: str, params: tuple = None, fetch: bool = True):
                 conn.rollback()
             except Exception:
                 pass
-        raise HTTPException(status_code=500, detail=f"Database operation failed: {e}")
+        raise HTTPException(status_code=500, detail="Database operation failed")
     finally:
         if cursor:
             try:
@@ -66,37 +67,28 @@ def execute_query(query: str, params: tuple = None, fetch: bool = True):
             except Exception:
                 pass
 
-
-# ------------------ Root ------------------
-@app.get("/")
-def root():
-    return {"message": "MWMS API running"}
-
 # ------------------ Health ------------------
 @app.get("/health")
-def health_check():
+def health():
     return {"status": "ok"}
 
 @app.get("/db-check")
-def database_check():
-    return db_check()
+def get_db_check():
+    return {"ok": db_check()}
 
 @app.get("/db-ssl-status")
-def database_ssl_status():
-    return db_ssl_status()
+def get_db_ssl_status():
+    return {"ssl": db_ssl_status()}
 
 # ------------------ Categories ------------------
 @app.get("/api/categories")
 def get_categories():
-    try:
-        query = "SELECT id, name, description FROM categories ORDER BY id"
-        result = execute_query(query)
-        return {"categories": result}
-    except Exception as e:
-        import logging
-        logging.error(f"❌ Error fetching categories: {e}")
-        return {"error": str(e)}
-
+    query = """
+        SELECT id, category_name, category_text, day_of_week, sort_order
+        FROM categories
+        ORDER BY id
+    """
+    return {"categories": execute_query(query)}
 
 # ------------------ Blocks ------------------
 @app.get("/api/categories/{category_id}/blocks")
@@ -112,6 +104,10 @@ def get_blocks(category_id: int):
 # ------------------ Questions ------------------
 @app.get("/api/blocks/{block_code}/questions")
 def get_questions(block_code: str):
+    """
+    Assumes block_code is unique (e.g., '1_1'). If this ever changes,
+    switch to category_id + block_number for stricter matching.
+    """
     query = """
         SELECT id, question_code, question_number, question_text
         FROM questions
@@ -124,94 +120,131 @@ def get_questions(block_code: str):
 @app.get("/api/questions/{question_code}/options")
 def get_options(question_code: str):
     query = """
-        SELECT id, option_code, option_number, option_text
+        SELECT id, option_select, option_text, option_code
         FROM options
         WHERE question_code = %s
-        ORDER BY option_number
+        ORDER BY option_select
     """
     return {"options": execute_query(query, (question_code,))}
+
+# ------------------ Soundtracks (stubbed safely) ------------------
+@app.get("/api/soundtracks")
+def get_soundtracks():
+    # TODO: enable real query when soundtracks table exists
+    return {"soundtracks": []}
+
+@app.get("/api/soundtracks/playlists")
+def get_playlists():
+    # TODO: enable real query when soundtracks table exists
+    return {"playlists": []}
 
 # ------------------ Users ------------------
 @app.post("/api/users")
 def create_user(user_uuid: str, year_of_birth: int):
-    query = "INSERT INTO users (user_uuid, year_of_birth) VALUES (%s, %s) ON CONFLICT DO NOTHING"
+    query = """
+        INSERT INTO users (user_uuid, year_of_birth)
+        VALUES (%s, %s)
+        ON CONFLICT DO NOTHING
+    """
     execute_query(query, (user_uuid, year_of_birth), fetch=False)
     return {"message": "User created or already exists"}
 
-@app.post("/api/debug/ensure_user")
-def ensure_user(user_uuid: str, year_of_birth: int):
-    query = "INSERT INTO users (user_uuid, year_of_birth) VALUES (%s, %s) ON CONFLICT DO NOTHING"
-    execute_query(query, (user_uuid, year_of_birth), fetch=False)
-    return {"message": "User ensured"}
-
-# ------------------ Responses ------------------
+# ------------------ Single-select vote ------------------
 @app.post("/api/vote")
-def record_vote(user_uuid: str, question_code: str, question_text: str, question_number: int,
-               category_name: str, block_number: int,
-               option_id: int, option_code: str, option_text: str,
-               setup_question_code: str = None, setup_option_id: int = None):
+def save_vote(
+    user_uuid: str,
+    question_code: str,
+    question_text: str,
+    question_number: int,
+    category_id: int,
+    category_name: str,
+    category_text: str,
+    option_id: int,
+    option_select: str,
+    option_code: str,
+    option_text: str,
+    block_number: int,
+    setup_question_code: str = None,
+    setup_option_id: int = None
+):
     query = """
         INSERT INTO responses (
             user_uuid, question_code, question_text, question_number,
-            category_name, option_id, option_code, option_text, block_number,
-            setup_question_code, setup_option_id
-        ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            category_id, category_name, category_text,
+            option_id, option_select, option_code, option_text,
+            block_number, setup_question_code, setup_option_id
+        )
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
-    execute_query(query, (user_uuid, question_code, question_text, question_number,
-                         category_name, option_id, option_code, option_text,
-                         block_number, setup_question_code, setup_option_id), fetch=False)
-    return {"message": "Vote recorded"}
+    execute_query(query, (
+        user_uuid, question_code, question_text, question_number,
+        category_id, category_name, category_text,
+        option_id, option_select, option_code, option_text,
+        block_number, setup_question_code, setup_option_id
+    ), fetch=False)
+    return {"message": "vote saved"}
 
+# ------------------ Checkbox (multi-select) vote ------------------
 @app.post("/api/checkbox_vote")
-def record_checkbox_vote(user_uuid: str, question_code: str, question_text: str, question_number: int,
-                        category_name: str, block_number: int,
-                        option_id: int, option_code: str, option_text: str, weight: float = 1.0,
-                        setup_question_code: str = None, setup_option_id: int = None):
+def save_checkbox_vote(
+    user_uuid: str,
+    question_code: str,
+    question_text: str,
+    question_number: int,
+    category_id: int,
+    category_name: str,
+    category_text: str,
+    option_id: int,
+    option_select: str,
+    option_code: str,
+    option_text: str,
+    block_number: int,
+    weight: float,
+    setup_question_code: str = None,
+    setup_option_id: int = None
+):
     query = """
         INSERT INTO checkbox_responses (
             user_uuid, question_code, question_text, question_number,
-            category_name, option_id, option_code, option_text, block_number, weight,
-            setup_question_code, setup_option_id
-        ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            category_id, category_name, category_text,
+            option_id, option_select, option_code, option_text,
+            block_number, weight, setup_question_code, setup_option_id
+        )
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
-    execute_query(query, (user_uuid, question_code, question_text, question_number,
-                         category_name, option_id, option_code, option_text, block_number,
-                         weight, setup_question_code, setup_option_id), fetch=False)
-    return {"message": "Checkbox vote recorded"}
+    execute_query(query, (
+        user_uuid, question_code, question_text, question_number,
+        category_id, category_name, category_text,
+        option_id, option_select, option_code, option_text,
+        block_number, weight, setup_question_code, setup_option_id
+    ), fetch=False)
+    return {"message": "checkbox vote saved"}
 
-@app.post("/api/other")
-def record_other_response(user_uuid: str, question_code: str, question_text: str, question_number: int,
-                         category_name: str, block_number: int, other_text: str,
-                         setup_question_code: str = None):
+# ------------------ "Other" text vote ------------------
+@app.post("/api/other_vote")
+def save_other_vote(
+    user_uuid: str,
+    question_code: str,
+    question_text: str,
+    question_number: int,
+    category_id: int,
+    category_name: str,
+    category_text: str,
+    block_number: int,
+    other_text: str,
+    setup_question_code: str = None
+):
     query = """
         INSERT INTO other_responses (
             user_uuid, question_code, question_text, question_number,
-            category_name, block_number, other_text, setup_question_code
-        ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+            category_id, category_name, category_text,
+            block_number, other_text, setup_question_code
+        )
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
-    execute_query(query, (user_uuid, question_code, question_text, question_number,
-                         category_name, block_number, other_text, setup_question_code), fetch=False)
-    return {"message": "Other response recorded"}
-
-# ------------------ Results ------------------
-@app.get("/api/results/{question_code}")
-def get_results(question_code: str):
-    query = """
-        SELECT option_code, option_text, COUNT(*) as votes
-        FROM responses
-        WHERE question_code = %s
-        GROUP BY option_code, option_text
-        ORDER BY votes DESC
-    """
-    return {"results": execute_query(query, (question_code,))}
-
-# ------------------ Soundtracks ------------------
-@app.get("/api/soundtracks")
-def get_soundtracks():
-    query = "SELECT * FROM soundtracks ORDER BY id"
-    return {"soundtracks": execute_query(query)}
-
-@app.get("/api/soundtracks/playlists")
-def get_playlists():
-    query = "SELECT DISTINCT playlist FROM soundtracks ORDER BY playlist"
-    return {"playlists": execute_query(query)}
+    execute_query(query, (
+        user_uuid, question_code, question_text, question_number,
+        category_id, category_name, category_text,
+        block_number, other_text, setup_question_code
+    ), fetch=False)
+    return {"message": "other vote saved"}
