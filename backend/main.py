@@ -4,6 +4,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from backend.db import connection_pool, db_check, db_ssl_status
 
+
 # Initialize FastAPI app
 app = FastAPI(
     title="My World My Say API",
@@ -29,7 +30,11 @@ app.add_middleware(
 )
 
 # Database query execution function
+
+# Replace your execute_query in main.py with this safer version
 def execute_query(query: str, params: tuple = None, fetch: bool = True):
+    conn = None
+    cursor = None
     try:
         conn = connection_pool.getconn()
         cursor = conn.cursor()
@@ -37,19 +42,30 @@ def execute_query(query: str, params: tuple = None, fetch: bool = True):
         if fetch:
             columns = [desc[0] for desc in cursor.description]
             rows = cursor.fetchall()
-            results = [dict(zip(columns, row)) for row in rows]
-            return results
+            return [dict(zip(columns, row)) for row in rows]
         else:
             conn.commit()
             return True
     except Exception as e:
         logging.error(f"Database operation failed: {e}")
+        if conn:
+            try:
+                conn.rollback()
+            except Exception:
+                pass
         raise HTTPException(status_code=500, detail=f"Database operation failed: {e}")
     finally:
         if cursor:
-            cursor.close()
+            try:
+                cursor.close()
+            except Exception:
+                pass
         if conn:
-            connection_pool.putconn(conn)
+            try:
+                connection_pool.putconn(conn)
+            except Exception:
+                pass
+
 
 # ------------------ Root ------------------
 @app.get("/")

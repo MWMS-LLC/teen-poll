@@ -1,41 +1,66 @@
 # backend/db.py
-# db.py
 import os
-import psycopg2
-from psycopg2 import pool
+import logging
 from contextlib import contextmanager
 
-# Create a connection pool (min 1, max 10 connections)
-connection_pool = psycopg2.pool.ThreadedConnectionPool(
-    minconn=1,
-    maxconn=10,
-    dsn=os.environ["DATABASE_URL"]
-)
+import psycopg2
+from psycopg2.pool import ThreadedConnectionPool
 
+# Load .env locally; no effect in prod if env vars are already set
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:
+    # dotenv is optional in prod; ignore if not installed
+    pass
 
-# Context manager to safely get and release a connection
+logger = logging.getLogger(__name__)
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL is not set in environment or .env file")
+
+# Create a connection pool once at startup
+try:
+    connection_pool = ThreadedConnectionPool(
+        minconn=1,
+        maxconn=10,
+        dsn=DATABASE_URL,
+    )
+except Exception as e:
+    logger.error(f"Error creating connection pool: {e}")
+    raise
+
 @contextmanager
 def get_db_connection():
-    conn = connection_pool.getconn()
+    """Yield a pooled connection and always return it to the pool."""
+    conn = None
     try:
+        conn = connection_pool.getconn()
         yield conn
     finally:
-        connection_pool.putconn(conn)
+        if conn is not None:
+            connection_pool.putconn(conn)
 
-# Execute a query using the context-managed connection
-def execute_query(query: str, params: tuple = None, fetch: bool = True):
-    with get_db_connection() as conn:
-        with conn.cursor() as cursor:
-            if params:
-                cursor.execute(query, params)
-            else:
-                cursor.execute(query)
+def db_check():
+    """Return True if SELECT 1 succeeds."""
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT 1;")
+                return cur.fetchone()[0] == 1
+    except Exception as e:
+        logger.error(f"DB check failed: {e}")
+        return False
 
-            if fetch:
-                # Get column names
-                columns = [desc[0] for desc in cursor.description]
-                rows = cursor.fetchall()
-                return [dict(zip(columns, row)) for row in rows]
-            else:
-                conn.commit()
-                return True
+def db_ssl_status():
+    """Return server 'ssl' setting (e.g., 'on' or 'off')."""
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SHOW ssl;")
+                return cur.fetchone()[0]
+    except Exception as e:
+        logger.error(f"Failed to check SSL status: {e}")
+        return None
+
