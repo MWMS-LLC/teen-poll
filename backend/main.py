@@ -3,6 +3,8 @@ import logging
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from backend.db import connection_pool, db_check, db_ssl_status
+import logging
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -141,16 +143,26 @@ def get_options(question_code: str):
     """
     return {"options": execute_query(query, (question_code,))}
 
+
+
+
 # ------------------ Soundtracks (stubbed safely) ------------------
+
+
 @app.get("/api/soundtracks")
 def get_soundtracks():
-    # TODO: enable real query when soundtracks table exists
-    return {"soundtracks": []}
+    query = "SELECT * FROM soundtracks ORDER BY id"
+    results = execute_query(query)
+    return {"soundtracks": results}
 
 @app.get("/api/soundtracks/playlists")
-def get_playlists():
-    # TODO: enable real query when soundtracks table exists
-    return {"playlists": []}
+def get_soundtrack_playlists():
+    query = "SELECT DISTINCT playlist_tag FROM soundtracks WHERE playlist_tag IS NOT NULL"
+    results = execute_query(query)
+    playlists = [row["playlist_tag"] for row in results if row.get("playlist_tag")]
+    return {"playlists": playlists}
+
+
 
 # ------------------ Users ------------------
 @app.post("/api/users")
@@ -262,3 +274,60 @@ def save_other_vote(
         block_number, other_text, setup_question_code
     ), fetch=False)
     return {"message": "other vote saved"}
+
+
+# ------------------ Age Validation ------------------
+from datetime import datetime
+
+@app.post("/api/validate-age")
+def validate_age(payload: dict):
+    try:
+        year_of_birth = payload.get("year_of_birth")
+
+        if not year_of_birth or not str(year_of_birth).isdigit():
+            raise HTTPException(status_code=400, detail="Invalid year of birth")
+
+        yob = int(year_of_birth)
+        current_year = datetime.now().year
+        age = current_year - yob
+
+        if age < 13:
+            return {"valid": False, "reason": "too_young"}
+        elif age > 120:
+            return {"valid": False, "reason": "invalid_year"}
+        else:
+            return {"valid": True, "age": age}
+
+    except Exception as e:
+        logger.error(f"Age validation failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Age validation failed: {e}")
+
+
+# ------------------ Playlists ------------------
+@app.get("/api/playlists")
+def get_playlists():
+    query = "SELECT * FROM playlists ORDER BY id"
+    results = execute_query(query)
+    return {"playlists": results}
+
+
+@app.get("/api/playlists/{playlist_id}")
+def get_playlist(playlist_id: int):
+    query = "SELECT * FROM playlists WHERE id = %s"
+    results = execute_query(query, (playlist_id,))
+    if not results:
+        raise HTTPException(status_code=404, detail="Playlist not found")
+    return {"playlist": results[0]}
+
+
+@app.get("/api/playlists/{playlist_id}/songs")
+def get_playlist_songs(playlist_id: int):
+    query = """
+        SELECT ps.*, s.*
+        FROM playlist_songs ps
+        JOIN soundtracks s ON ps.song_id = s.id
+        WHERE ps.playlist_id = %s
+        ORDER BY ps.order_number
+    """
+    results = execute_query(query, (playlist_id,))
+    return {"songs": results}
