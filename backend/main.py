@@ -84,7 +84,7 @@ def get_db_ssl_status():
 @app.get("/api/categories")
 def get_categories():
     query = """
-        SELECT id, category_name, category_text, day_of_week, sort_order
+        SELECT *
         FROM categories
         ORDER BY id
     """
@@ -94,7 +94,7 @@ def get_categories():
 @app.get("/api/categories/{category_id}/blocks")
 def get_blocks(category_id: int):
     query = """
-        SELECT id, block_code, block_number, block_text
+        SELECT *
         FROM blocks
         WHERE category_id = %s
         ORDER BY block_number
@@ -109,7 +109,7 @@ def get_questions(block_code: str):
     switch to category_id + block_number for stricter matching.
     """
     query = """
-        SELECT id, question_code, question_number, question_text
+        SELECT *
         FROM questions
         WHERE block_code = %s
         ORDER BY question_number
@@ -120,7 +120,7 @@ def get_questions(block_code: str):
 @app.get("/api/questions/{question_code}/options")
 def get_options(question_code: str):
     query = """
-        SELECT id, option_select, option_text, option_code
+        SELECT *
         FROM options
         WHERE question_code = %s
         ORDER BY option_select
