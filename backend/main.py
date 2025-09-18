@@ -120,7 +120,10 @@ async def get_questions_by_block(block_code: str):
               AND block_number = %s
             ORDER BY question_number
         """
-        return execute_query(query, (category_id, block_number))
+        results = execute_query(query, (category_id, block_number))
+
+        # ✅ Wrap like categories/blocks/options
+        return {"questions": results}
 
     except Exception as e:
         logger.error(f"Database operation failed: {e}")
