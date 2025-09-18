@@ -103,18 +103,29 @@ def get_blocks(category_id: int):
 
 # ------------------ Questions ------------------
 @app.get("/api/blocks/{block_code}/questions")
-def get_questions(block_code: str):
-    """
-    Assumes block_code is unique (e.g., '1_1'). If this ever changes,
-    switch to category_id + block_number for stricter matching.
-    """
-    query = """
-        SELECT *
-        FROM questions
-        WHERE block_code = %s
-        ORDER BY question_number
-    """
-    return {"questions": execute_query(query, (block_code,))}
+async def get_questions_by_block(block_code: str):
+    try:
+        # Split "1_1" → category_id=1, block_number=1
+        parts = block_code.split('_')
+        if len(parts) != 2:
+            raise ValueError("Invalid block code format")
+
+        category_id = int(parts[0])
+        block_number = int(parts[1])
+
+        query = """
+            SELECT *
+            FROM questions
+            WHERE category_id = %s
+              AND block_number = %s
+            ORDER BY question_number
+        """
+        return execute_query(query, (category_id, block_number))
+
+    except Exception as e:
+        logger.error(f"Database operation failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Database operation failed: {e}")
+
 
 # ------------------ Options ------------------
 @app.get("/api/questions/{question_code}/options")
