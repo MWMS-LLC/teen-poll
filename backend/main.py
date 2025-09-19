@@ -544,13 +544,15 @@ def save_vote(payload: VoteIn):
 
 
 @app.get("/api/results/{question_code}")
-def get_results_robust(question_code: str):
+def get_results_backcompat(question_code: str):
     """
-    Robust results endpoint:
-    - normalizes option_select (trim+upper) when counting
-    - falls back to option_id counts if necessary
-    - includes 'Other' / free-text buckets
-    - returns total_responses
+    Backwards-compatible results endpoint.
+
+    Returns:
+      - single_choice_aggregates: modern shape (option_select, option_code, option_text, votes)
+      - checkbox_aggregates: modern checkbox shape
+      - results: legacy shape (array of { option_select, count }) for old frontends
+      - total_responses: numeric total
     """
     try:
         # canonical options (ordered)
@@ -559,7 +561,7 @@ def get_results_robust(question_code: str):
             (question_code,)
         ) or []
 
-        # 1) counts by normalized option_select (trim + upper)
+        # counts by normalized option_select (preferred)
         resp_sel_counts = execute_query(
             """
             SELECT COALESCE(UPPER(TRIM(option_select)), 'OTHER') AS sel_norm,
@@ -572,7 +574,7 @@ def get_results_robust(question_code: str):
         ) or []
         resp_map_sel = { r["sel_norm"]: float(r["votes"]) for r in resp_sel_counts }
 
-        # 2) counts by option_id (some rows may have option_id set)
+        # counts by option_id (fallback)
         resp_id_counts = execute_query(
             """
             SELECT option_id, COALESCE(SUM(COALESCE(vote_weight,1.0)),0) AS votes
@@ -584,7 +586,7 @@ def get_results_robust(question_code: str):
         ) or []
         resp_map_id = { (int(r["option_id"]) if r["option_id"] is not None else None): float(r["votes"]) for r in resp_id_counts }
 
-        # 3) checkbox counts by normalized option_select
+        # checkbox counts by normalized option_select (we'll conditionally use this)
         cb_sel_counts = execute_query(
             """
             SELECT COALESCE(UPPER(TRIM(option_select)), 'OTHER') AS sel_norm,
@@ -597,7 +599,7 @@ def get_results_robust(question_code: str):
         ) or []
         cb_map_sel = { r["sel_norm"]: float(r["votes"]) for r in cb_sel_counts }
 
-        # Build aggregates: canonical options -> prefer sel match, fallback to option_id match
+        # Build modern aggregates for canonical options
         single_choice_aggregates = []
         checkbox_aggregates = []
         seen_sel_keys = set()
@@ -608,10 +610,9 @@ def get_results_robust(question_code: str):
             raw_sel = (opt.get("option_select") or "")
             key = raw_sel.strip().upper() if raw_sel else "OTHER"
 
-            # choose votes: prefer normalized option_select count, else option_id count
+            # pick votes: prefer normalized option_select counts, fallback to option_id
             votes = resp_map_sel.get(key, 0.0)
             if votes == 0 and oid is not None:
-                # fallback to option_id counts
                 votes = resp_map_id.get(oid, 0.0)
 
             single_choice_aggregates.append({
@@ -621,7 +622,8 @@ def get_results_robust(question_code: str):
                 "option_text": opt.get("option_text"),
                 "votes": votes
             })
-            # checkbox (canonical)
+
+            # checkbox (canonical) — use normalized select counts
             cb_votes = cb_map_sel.get(key, 0.0)
             checkbox_aggregates.append({
                 "option_id": oid,
@@ -635,7 +637,7 @@ def get_results_robust(question_code: str):
             if oid is not None:
                 seen_option_ids.add(oid)
 
-        # Append any extra response buckets (normalized sel) not in canonical options
+        # Append any extra response buckets (normalized select) not in canonical options
         for sel_norm, votes in resp_map_sel.items():
             if sel_norm not in seen_sel_keys:
                 single_choice_aggregates.append({
@@ -659,23 +661,63 @@ def get_results_robust(question_code: str):
                 })
                 seen_option_ids.add(opt_id)
 
-        # Total responses for this question (sum of vote_weight or 1)
+        # Total responses
         total_row = execute_query(
             "SELECT COALESCE(SUM(COALESCE(vote_weight,1.0)),0) AS total FROM responses WHERE question_code = %s",
             (question_code,)
         )
         total_responses = float(total_row[0]["total"]) if total_row else 0.0
 
-        return {
+        # --- BUILD LEGACY 'results' ARRAY for backward compatibility ---
+        # legacy array: [{ option_select, count, option_text? }]
+        legacy_results = []
+        # prefer canonical option order
+        if option_rows:
+            for opt in option_rows:
+                oid = opt.get("id")
+                sel = (opt.get("option_select") or "").strip()
+                key = sel.upper() if sel else "OTHER"
+                # find corresponding votes from modern aggregates (match by option_select or option_id)
+                votes = 0.0
+                # search in single_choice_aggregates for matching entry
+                for a in single_choice_aggregates:
+                    # match by option_id OR normalized option_select
+                    if a.get("option_id") == oid:
+                        votes = float(a.get("votes", 0.0))
+                        break
+                    if a.get("option_select") and a.get("option_select").strip().upper() == key:
+                        votes = float(a.get("votes", 0.0))
+                        break
+                legacy_results.append({
+                    "option_select": sel,
+                    "count": votes,
+                    "option_text": opt.get("option_text")
+                })
+        else:
+            # no canonical options: emit buckets found in single_choice_aggregates
+            for a in single_choice_aggregates:
+                legacy_results.append({
+                    "option_select": a.get("option_select") or (a.get("option_code") or str(a.get("option_id") or '')),
+                    "count": float(a.get("votes") or 0.0),
+                    "option_text": a.get("option_text")
+                })
+
+        # Build final payload — include both modern and legacy shapes
+        payload = {
             "status": "ok",
             "question_code": question_code,
             "total_responses": total_responses,
             "single_choice_aggregates": single_choice_aggregates,
-            "checkbox_aggregates": checkbox_aggregates
+            "checkbox_aggregates": checkbox_aggregates,
+            # legacy compatibility field used by older frontends:
+            "results": legacy_results
         }
+
+        return payload
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch results: {e}")
+
 
 
 
