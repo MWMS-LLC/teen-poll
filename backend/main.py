@@ -6,7 +6,7 @@ from backend.db import connection_pool, db_check, db_ssl_status
 from pydantic import BaseModel
 from typing import List, Optional, Union
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 import zlib
 
 logger = logging.getLogger(__name__)
@@ -180,6 +180,9 @@ class VoteIn(BaseModel):
     # For single-choice either provide option_id OR other_text
     option_id: Optional[int] = None
     other_text: Optional[str] = None
+    # add inside class VoteIn(BaseModel):
+    option_select: Optional[str] = None   # e.g. "A", "B" — frontend currently sends this
+
     # For checkbox/multi-select:
     is_checkbox: Optional[bool] = False
     option_ids: Optional[List[int]] = None
@@ -259,8 +262,22 @@ def save_vote(payload: VoteIn):
     """
     user_uuid = payload.user_uuid
     qcode = payload.question_code
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)   # tz-aware UTC
     vw = float(payload.vote_weight or 1.0)
+   
+   # If frontend sent option_select (like "A") but not option_id, resolve it to option_id
+    if (payload.option_id is None) and getattr(payload, "option_select", None):
+        sel = payload.option_select.strip()
+        if sel:
+            found = execute_query(
+                "SELECT id FROM options WHERE question_code = %s AND UPPER(option_select) = %s LIMIT 1",
+                (qcode, sel.upper())
+            )
+            if found:
+                # support dict result or tuple
+                first = found[0]
+                payload.option_id = first["id"] if isinstance(first, dict) else first[0]
+            # if not found, leave option_id=None so other_text can be used or validation will error later
 
     # Basic validation
     if not user_uuid or not qcode:
