@@ -538,64 +538,80 @@ def save_vote(payload: VoteIn):
 
 
 # add near your other GET endpoints (e.g. under /api/options)
-from fastapi import HTTPException
 
 @app.get("/api/results/{question_code}")
-def get_results(question_code: str):
+def get_results_by_select(question_code: str):
     """
-    Return aggregated vote sums per option for the given question_code.
-    This is what the frontend expects when it calls /api/results/<question_code>.
+    Aggregate results keyed by option_select (e.g., 'A', 'B', etc.),
+    returning canonical options first (so zero counts show) and appending
+    any other option_select buckets found in responses/checkbox_responses.
     """
     try:
-        # canonical options for the question (so frontend sees all options even w/ zero votes)
-        option_rows = execute_query(
-            "SELECT id, option_select, option_code, option_text FROM options WHERE question_code = %s ORDER BY id",
+        # canonical options (ordered)
+        options = execute_query(
+            "SELECT option_select, option_code, option_text FROM options WHERE question_code = %s ORDER BY id",
             (question_code,)
-        )
+        ) or []
 
-        # single-choice aggregates from responses
-        resp_counts = execute_query(
-            """
-            SELECT option_id, COALESCE(SUM(COALESCE(vote_weight,1.0)),0) AS votes
+        # counts per option_select from responses
+        resp_counts = execute_query("""
+            SELECT COALESCE(option_select, 'Other') AS option_select,
+                   COALESCE(SUM(COALESCE(vote_weight,1.0)),0) AS votes
             FROM responses
-            WHERE question_code = %s AND option_id IS NOT NULL
-            GROUP BY option_id
-            """,
-            (question_code,)
-        )
+            WHERE question_code = %s
+            GROUP BY COALESCE(option_select, 'Other')
+        """, (question_code,)) or []
 
-        # checkbox aggregates
-        cb_counts = execute_query(
-            """
-            SELECT option_id, COALESCE(SUM(COALESCE(vote_weight,1.0)),0) AS votes
+        # counts per option_select from checkbox_responses
+        cb_counts = execute_query("""
+            SELECT COALESCE(option_select, 'Other') AS option_select,
+                   COALESCE(SUM(COALESCE(vote_weight,1.0)),0) AS votes
             FROM checkbox_responses
-            WHERE question_code = %s AND option_id IS NOT NULL
-            GROUP BY option_id
-            """,
-            (question_code,)
-        )
+            WHERE question_code = %s
+            GROUP BY COALESCE(option_select, 'Other')
+        """, (question_code,)) or []
 
-        # normalize into maps
-        resp_map = {r["option_id"]: float(r["votes"]) for r in resp_counts} if resp_counts else {}
-        cb_map   = {r["option_id"]: float(r["votes"]) for r in cb_counts} if cb_counts else {}
+        # Normalize maps (uppercase keys to avoid case-mismatch)
+        resp_map = { (r["option_select"] or "").strip().upper(): float(r["votes"]) for r in resp_counts }
+        cb_map   = { (r["option_select"] or "").strip().upper(): float(r["votes"]) for r in cb_counts }
 
         single_choice_aggregates = []
-        checkbox_aggregates = []
-        for opt in option_rows:
-            oid = opt["id"]
+        seen = set()
+        for o in options:
+            sel = (o.get("option_select") or "").strip()
+            key = sel.upper() if sel else "OTHER"
             single_choice_aggregates.append({
-                "option_id": oid,
-                "option_select": opt.get("option_select"),
-                "option_code": opt.get("option_code"),
-                "option_text": opt.get("option_text"),
-                "votes": resp_map.get(oid, 0.0)
+                "option_id": None,
+                "option_select": sel,
+                "option_code": o.get("option_code"),
+                "option_text": o.get("option_text"),
+                "votes": resp_map.get(key, 0.0)
             })
+            seen.add(key)
+
+        # Append any non-canonical option_select buckets (e.g., free-text 'Other')
+        for k, v in resp_map.items():
+            if k not in seen:
+                single_choice_aggregates.append({
+                    "option_id": None,
+                    "option_select": k,
+                    "option_code": k,
+                    "option_text": k,
+                    "votes": v
+                })
+                seen.add(k)
+
+        # Checkbox aggregates: canonical options first
+        checkbox_aggregates = []
+        for o in options:
+            sel = (o.get("option_select") or "").strip()
+            key = sel.upper() if sel else "OTHER"
             checkbox_aggregates.append({
-                "option_id": oid,
-                "option_select": opt.get("option_select"),
-                "option_code": opt.get("option_code"),
-                "option_text": opt.get("option_text"),
-                "votes": cb_map.get(oid, 0.0)
+                "option_id": None,
+                "option_select": sel,
+                "option_code": o.get("option_code"),
+                "option_text": o.get("option_text"),
+                "votes": cb_map.get(key, 0.0)
             })
 
         return {
@@ -607,6 +623,7 @@ def get_results(question_code: str):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch results: {e}")
+
 
 
 # ------------------ "Other" text vote (kept for backward compat) ------------------
