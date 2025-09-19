@@ -537,86 +537,139 @@ def save_vote(payload: VoteIn):
     }
 
 
+
+
+
 # add near your other GET endpoints (e.g. under /api/options)
 
+
 @app.get("/api/results/{question_code}")
-def get_results_by_select(question_code: str):
+def get_results_robust(question_code: str):
     """
-    Aggregate results keyed by option_select (e.g., 'A', 'B', etc.),
-    returning canonical options first (so zero counts show) and appending
-    any other option_select buckets found in responses/checkbox_responses.
+    Robust results endpoint:
+    - normalizes option_select (trim+upper) when counting
+    - falls back to option_id counts if necessary
+    - includes 'Other' / free-text buckets
+    - returns total_responses
     """
     try:
         # canonical options (ordered)
-        options = execute_query(
-            "SELECT option_select, option_code, option_text FROM options WHERE question_code = %s ORDER BY id",
+        option_rows = execute_query(
+            "SELECT id, option_select, option_code, option_text FROM options WHERE question_code = %s ORDER BY id",
             (question_code,)
         ) or []
 
-        # counts per option_select from responses
-        resp_counts = execute_query("""
-            SELECT COALESCE(option_select, 'Other') AS option_select,
+        # 1) counts by normalized option_select (trim + upper)
+        resp_sel_counts = execute_query(
+            """
+            SELECT COALESCE(UPPER(TRIM(option_select)), 'OTHER') AS sel_norm,
                    COALESCE(SUM(COALESCE(vote_weight,1.0)),0) AS votes
             FROM responses
             WHERE question_code = %s
-            GROUP BY COALESCE(option_select, 'Other')
-        """, (question_code,)) or []
+            GROUP BY COALESCE(UPPER(TRIM(option_select)), 'OTHER')
+            """,
+            (question_code,)
+        ) or []
+        resp_map_sel = { r["sel_norm"]: float(r["votes"]) for r in resp_sel_counts }
 
-        # counts per option_select from checkbox_responses
-        cb_counts = execute_query("""
-            SELECT COALESCE(option_select, 'Other') AS option_select,
+        # 2) counts by option_id (some rows may have option_id set)
+        resp_id_counts = execute_query(
+            """
+            SELECT option_id, COALESCE(SUM(COALESCE(vote_weight,1.0)),0) AS votes
+            FROM responses
+            WHERE question_code = %s AND option_id IS NOT NULL
+            GROUP BY option_id
+            """,
+            (question_code,)
+        ) or []
+        resp_map_id = { (int(r["option_id"]) if r["option_id"] is not None else None): float(r["votes"]) for r in resp_id_counts }
+
+        # 3) checkbox counts by normalized option_select
+        cb_sel_counts = execute_query(
+            """
+            SELECT COALESCE(UPPER(TRIM(option_select)), 'OTHER') AS sel_norm,
                    COALESCE(SUM(COALESCE(vote_weight,1.0)),0) AS votes
             FROM checkbox_responses
             WHERE question_code = %s
-            GROUP BY COALESCE(option_select, 'Other')
-        """, (question_code,)) or []
+            GROUP BY COALESCE(UPPER(TRIM(option_select)), 'OTHER')
+            """,
+            (question_code,)
+        ) or []
+        cb_map_sel = { r["sel_norm"]: float(r["votes"]) for r in cb_sel_counts }
 
-        # Normalize maps (uppercase keys to avoid case-mismatch)
-        resp_map = { (r["option_select"] or "").strip().upper(): float(r["votes"]) for r in resp_counts }
-        cb_map   = { (r["option_select"] or "").strip().upper(): float(r["votes"]) for r in cb_counts }
-
+        # Build aggregates: canonical options -> prefer sel match, fallback to option_id match
         single_choice_aggregates = []
-        seen = set()
-        for o in options:
-            sel = (o.get("option_select") or "").strip()
-            key = sel.upper() if sel else "OTHER"
-            single_choice_aggregates.append({
-                "option_id": None,
-                "option_select": sel,
-                "option_code": o.get("option_code"),
-                "option_text": o.get("option_text"),
-                "votes": resp_map.get(key, 0.0)
-            })
-            seen.add(key)
+        checkbox_aggregates = []
+        seen_sel_keys = set()
+        seen_option_ids = set()
 
-        # Append any non-canonical option_select buckets (e.g., free-text 'Other')
-        for k, v in resp_map.items():
-            if k not in seen:
+        for opt in option_rows:
+            oid = opt.get("id")
+            raw_sel = (opt.get("option_select") or "")
+            key = raw_sel.strip().upper() if raw_sel else "OTHER"
+
+            # choose votes: prefer normalized option_select count, else option_id count
+            votes = resp_map_sel.get(key, 0.0)
+            if votes == 0 and oid is not None:
+                # fallback to option_id counts
+                votes = resp_map_id.get(oid, 0.0)
+
+            single_choice_aggregates.append({
+                "option_id": oid,
+                "option_select": raw_sel,
+                "option_code": opt.get("option_code"),
+                "option_text": opt.get("option_text"),
+                "votes": votes
+            })
+            # checkbox (canonical)
+            cb_votes = cb_map_sel.get(key, 0.0)
+            checkbox_aggregates.append({
+                "option_id": oid,
+                "option_select": raw_sel,
+                "option_code": opt.get("option_code"),
+                "option_text": opt.get("option_text"),
+                "votes": cb_votes
+            })
+
+            seen_sel_keys.add(key)
+            if oid is not None:
+                seen_option_ids.add(oid)
+
+        # Append any extra response buckets (normalized sel) not in canonical options
+        for sel_norm, votes in resp_map_sel.items():
+            if sel_norm not in seen_sel_keys:
                 single_choice_aggregates.append({
                     "option_id": None,
-                    "option_select": k,
-                    "option_code": k,
-                    "option_text": k,
-                    "votes": v
+                    "option_select": sel_norm,
+                    "option_code": sel_norm,
+                    "option_text": sel_norm,
+                    "votes": votes
                 })
-                seen.add(k)
+                seen_sel_keys.add(sel_norm)
 
-        # Checkbox aggregates: canonical options first
-        checkbox_aggregates = []
-        for o in options:
-            sel = (o.get("option_select") or "").strip()
-            key = sel.upper() if sel else "OTHER"
-            checkbox_aggregates.append({
-                "option_id": None,
-                "option_select": sel,
-                "option_code": o.get("option_code"),
-                "option_text": o.get("option_text"),
-                "votes": cb_map.get(key, 0.0)
-            })
+        # Append any orphan option_id counts that are not in canonical options
+        for opt_id, votes in resp_map_id.items():
+            if opt_id not in seen_option_ids:
+                single_choice_aggregates.append({
+                    "option_id": opt_id,
+                    "option_select": None,
+                    "option_code": None,
+                    "option_text": None,
+                    "votes": votes
+                })
+                seen_option_ids.add(opt_id)
+
+        # Total responses for this question (sum of vote_weight or 1)
+        total_row = execute_query(
+            "SELECT COALESCE(SUM(COALESCE(vote_weight,1.0)),0) AS total FROM responses WHERE question_code = %s",
+            (question_code,)
+        )
+        total_responses = float(total_row[0]["total"]) if total_row else 0.0
 
         return {
             "status": "ok",
             "question_code": question_code,
+            "total_responses": total_responses,
             "single_choice_aggregates": single_choice_aggregates,
             "checkbox_aggregates": checkbox_aggregates
         }
