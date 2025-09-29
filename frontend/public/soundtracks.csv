@@ -1,0 +1,57 @@
+﻿song_id,song_title,mood_tag,playlist_tag,lyrics_snippet,featured,featured_order,file_url
+STR_01,Spark Still Rise (Male Rap),"bitter, beieving","Spiral, Believe",You ain’t gotta fake the fire. Even sparks can light the sky.,TRUE,1,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/sparks-still-rise.mp3
+STR_02,Spark Still Rise (Female Rap),"bitter, beieving","Spiral, Believe",You ain’t gotta fake the fire. Even sparks can light the sky.,TRUE,2,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/sparks-still-rise+Girl.mp3
+DP_01,Daring Path (Female V1),believing,Believe,I don’t need small mirrors to shine. I don’t need blind eyes to define.,TRUE,3,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/daring+path.mp3
+DP_02,Daring Path (Female V2),believing,Believe,I don’t need small mirrors to shine. I don’t need blind eyes to define.,TRUE,4,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/daring+path+2.mp3
+DBNF_01,Deleted But Not Forgoten (Female),"bitter, believing","Hurt, Believe","Delete the post, But Not Forgotten. I’m still here, still me, still real.",TRUE,5,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/deleted%2C-but-not-forgotten.mp3
+LRDD_01,"Left on Read, Dragged in DMs (Female)","bitter, believing","Hurt, Believe","No reply, just side-eyes. But trust—I’m louder than your will.",TRUE,6,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Left+on+Read%2C+Dragged+in+DMs.mp3
+PINI_01,"Photos I'm Not In (Male, Cinematic Rap)","bitter, believing","Hurt, Believe","Photos I’m not in, don’t dim my light.",TRUE,7,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Photos+I%E2%80%99m+Not+In.mp3
+ISWIA_01,"I Said What I Am (Female, Hip-Hop) ","bitter, believing","Hurt, Believe",I know what I’m building. Even when they tear me down,TRUE,8,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/I+Said+What+I+Am+(Hip-Hop)+(Edit).mp3
+IWOTM_01,I want one that's mine (Male),"soft, believing","Spiral, Believe",Is it peace or just pretend? I’m tired of borrowing moods,TRUE,9,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/i-want-one-that%E2%80%99s-mine..mp3
+IWMG_01,I wasn't mean to go (Female),"soft, believing",Hurt,"I wasn’t left out—I feel right
+Not every room deserves my light",TRUE,10,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/I+Wasn%E2%80%99t+Meant+to+Go.mp3
+STS_M,Sky That Stayed (Male) ,"believing, inspiring","Hurt, Believe, Breakup","You were the storm that tore through fast. But I’m the sky that always lasts. Still wide, still blue, still brave, still bright. I carry calm, I hold my light.",TRUE,11,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Sky+That+Stayed+(Male).mp3
+STS_F,Sky That Stayed (Female) ,"believing, inspiring","Hurt, Believe, Breakup","You were the storm that tore through fast. But I’m the sky that always lasts. Still wide, still blue, still brave, still bright. I carry calm, I hold my light.",TRUE,12,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Sky+That+Stayed+(Female).mp3
+MVMW_01,My Voice at My World My Say,"soft, believing","Spiral, Believe","Somewhere, someone’s feeling just like this",TRUE,13,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/my-voice.mp3
+THM_1,Theme Song (Male Inspiring Rap),inspiring,Theme_Song,"My World, My Say",TRUE,14,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Theme+(Male+Inspiring+Rap).mp3
+THM_2,Theme Song (Girl HipHop),spicy,Theme_Song,"My World, My Say",TRUE,15,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Some+Days+Still+Count+(emo).mp3
+THM_3,Theme Song (Girl Rap),rap,Theme_Song,"My World, My Say",TRUE,16,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Theme+(+Girl+Inspiring+Rap).mp3
+THM_4,Theme Song (Children Choir),inspiring,Theme_Song,"My World, My Say",TRUE,17,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Theme+(Children+Choir).mp3
+THM_5,Theme Song (Girl HipHop),inspiring,Theme_Song,"My World, My Say",TRUE,18,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Theme+(Girl+HipHop+2).mp3
+AI_RAP_DUET,We Name the Goal (Duet Rap),"believing, inspiring","Theme_Song, AI_and_My_Future",We shape the world by what we say.,TRUE,19,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/We+Name+the+Goal+(Two+Voice).mp3
+AI_RAP,We Name the Goal (Rap),"believing, inspiring","Theme_Song, AI_and_My_Future",We shape the world by what we say.,TRUE,20,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/We+Name+the+Goal.mp3
+AI_RA_HIPHOP,We Name the Goal (Hip Hop),"believing, inspiring","Theme_Song, AI_and_My_Future",We shape the world by what we say.,TRUE,21,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/We+Name+the+Goal+(Hip+Hop).mp3
+AI_RA_REG,We Name the Goal (Reggaeton)),"believing, inspiring","Theme_Song, AI_and_My_Future",We shape the world by what we say.,TRUE,22,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/We+Name+the+Goal+(Female+Reggaeton).mp3
+TMTSA_M,Tell Me That Story Again,"love, lowkey","Love, Lowkey","Just learning the map that leads to you. No need to impress, no need to bend—Just tell me that story again.",TRUE,23,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Tell+Me+That+Story+Again.mp3
+CIMH,Cool in My Head,"Chaos, love","Love, Chaos","I planned the whole thing in my head. I’d say “hey” real chill, then nod instead.",TRUE,24,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Cool+in+My+Head.mp3
+LYAN,Left You a Note (Male),"love, lowkey","Love, Lowkey","I left you a note, didn’t sign my name. But it’s tucked in your book, like a gentle flame. It says “You’re kind” and “I see you there”",TRUE,25,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Left+You+a+Note.mp3
+SYAS,Save You a Seat,"Chaos, love","Love, Chaos","You dropped your pen, I gave it back. Said, “No big deal,” then overreacted. Inside I’m screaming “That was smooth…”. But outside I’m just me + you",TRUE,26,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Saved+You+a+Seat.mp3
+YAAW_M,You’re already whole,love,Love,"I don’t need flowers or big displays. Just look at me that certain way. I show my care in lowercase. Like staying late, like knowing your pace.",TRUE,27,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/You%E2%80%99re+already+whole.mp3
+YEAH_F,"Yeah, I Noticed (POV_ The girl who sees through the act)",love,Love,You don’t have to say you’re brave. I already saw you try. It’s not the words that made me smile—It’s the trying.,TRUE,28,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Yeah%2C+I+Noticed+(POV_+The+girl+who+sees+through+the+act)+(1).mp3
+SSKY_PRNT,Same Sky (Parent Side),family,Family,"If I listened with more grace, with less reply, Would your heart stay close instead of saying goodbye?",TRUE,29,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Same+Sky+(Rap+Parent+Side).mp3
+SSKY_TB,Same Sky (Rap Teen Boy Side),family,Family,"I don’t need you to fix the rain
+Just stay close when I’m hiding pain",TRUE,30,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Same+Sky+(Rap+Teen+Side).mp3
+SSKY_TG,Same Sky (Teen Girl Side),family,Family,"I don’t need you to fix the rain
+Just stay close when I’m hiding pain",TRUE,31,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Same+Sky+(Teen+Girl+Side).mp3
+SSKY_DUET,Same Sky (Duet),family,Family,"If we both reach out
+We could find each other in the light",TRUE,32,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Same+Sky+Duet.mp3
+SDSC,Some Days Still Count,lowkey,"Lowkey, Believe","Some days don’t shine. But I still keep time. I don’t glow, I don’t shout. But I still know what I’m about",TRUE,33,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Some+Days+Still+Count+(emo).mp3
+SVAM,Mountains vs A Mattress,family,Family,"Too much rain, too many shoulds, Advice that comes in endless drifts. They only need a quiet sound, A gentle hand, a steady ground",TRUE,34,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Clear+Sky%2C+Gentle+Ground.mp3
+AR_1,A Riddle (1),family,Family,"But when they fall, I lift them high, Like springs that push toward the sky. Bounce them forward, let them soar, Yet I remain—a bed with springs. ",TRUE,35,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Riddle+4.mp3
+TUT,The Uncommon Tread,inspiring,Believe," I won’t trade my stars for stone  Or lose my voice to feel less alone . What’s rare is still a song unsaid, I’m proud to wear the uncommon thread.",TRUE,36,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/The+Uncommon+Thread.mp3
+FHERE,Forever Here,Family,Family,"You say, ‘Leave me alone,’ 
+but I hear ‘Please don’t go’",TRUE,41,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Forever+Here.mp3
+IFYLM,If You Let Me,Family,Family,"I held your hand, but missed your heart
+I stayed close, but felt apart
+If I could go back, I’d learn to stay
+Not just with love—but in your way",TRUE,42,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/if-you'll-let-me.mp3
+MG_M,Morning Gratitude (Male),inspiring,"1st_Thing_1st, Lowkey, Family","So I say thanks, for the love I know, 
+In the little ways that help me grow. 
+Parents, friends, and teachers too, 
+And myself — for pulling through.",TRUE,39,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Morning+Gratitude+(Edit)+(Edit).mp3
+SAQ,Spark a Question ,inspiring,1st_Thing_1st,"Step in the class, don’t just sit in the row,  
+Ask one thing that’ll make your mind grow.  
+“Why this? How that?” — let the sparks fly,  
+Even small questions can open up the sky.  ",TRUE,37,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Spark+a+Question.mp3
+SAG_F,Spark a Question (Female),inspiring,1st_Thing_1st,"One spark, one spark — light it every day,  
+Ask one question, find a brand-new way.  ",TRUE,38,https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Spark+a+Question+(Edit).mp3

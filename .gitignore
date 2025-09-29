@@ -1,32 +1,50 @@
-# macOS Finder junk
-.DS_Store
-
-# Python cache
+# -------------------------
+# Python (backend)
+# -------------------------
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
-*.pkl
+*.db
+*.sqlite3
 
-# Virtual environments
+# Virtual environment
+.env
 .venv/
-venv/
 env/
+venv/
 
+# Py test/coverage
+.coverage
+.pytest_cache/
+htmlcov/
+
+# -------------------------
+# Node (frontend)
+# -------------------------
+node_modules/
+dist/
+build/
+.npm/
+.cache/
+.next/
+out/
+
+# -------------------------
+# System files
+# -------------------------
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# -------------------------
 # Logs
+# -------------------------
 *.log
 
-# Byte-compiled / optimized / DLL files
-*.so
-*.dll
-
-# Jupyter/IPython
-.ipynb_checkpoints
-
-# VS Code / IDE settings
-.vscode/
-.idea/
-
-# Local environment files
-.env
+# -------------------------
+# Env & Config
+# -------------------------
+*.env
 .env.*

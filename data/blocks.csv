@@ -1,72 +1,73 @@
-﻿id,category_id,block_number,block_code,block_text,version,uuid,category_name
-1,1,1,1_1,"A thank-you is the best first move:
+﻿id,category_id,category_name,block_number,block_text,block_code,version,uuid
+1,1,1st Thing 1st,1,"A thank-you is the best first move:
 Someone to Thank
-🎵[playlist:1st_Thing_1st]",1,2b48a45c-a777-4fbc-8ef7-a1c962b13145,1st_Thing_1st
-2,1,2,1_2,"Ask 1 Question in Class: That Can Change the Way You See School
-🎵[playlist:1st_Thing_1st]",1,2b48a45c-a777-4fbc-8ef7-a1c962b13146,1st_Thing_1st
-3,1,3,1_3,Ask 1 Question in Your Daydream: That Can Change the Way You See Your Life,1,2b48a45c-a777-4fbc-8ef7-a1c962b13147,1st_Thing_1st
-4,1,4,1_4,Ask 1 Question at Dinner: That Can Change the Way You See Your Parents — and the Way They See You.,1,2b48a45c-a777-4fbc-8ef7-a1c962b13148,1st_Thing_1st
-5,2,1,2_1,Do They Like Me?,1,2b48a45c-a777-4fbc-8ef7-a1c962b13149,Love
-6,2,2,2_2,"Small Moves, Big Feels
-🎵[playlist:Love]",1,3b11a3a1-05f4-4862-a6b8-7d8d97a28e33,Love
-7,2,3,2_3,Kind of a Couple,1,5f77b0cb-330e-41a5-b81c-1d3ab1ed8f29,Love
-8,2,4,2_4,"Ghosts, Gaps & Goodbyes",1,acc6ec24-512e-4d5f-8db6-b5bf86eca745,Love
-9,2,5,2_5," The Sky That Stayed
-🎵[playlist:Breakup]",1,d3d6883b-8ebc-4c63-b44b-694c66279e53,Love
-10,3,1,3_1,How to Make Friends,1,d3d6883b-8ebc-4c63-b44b-694c66279e54,Friends
-11,3,2,3_2,How to Keep a Friend,1,d3d6883b-8ebc-4c63-b44b-694c66279e55,Friends
-12,3,3,3_3,Friend Vibes,1,9b08ccfe-4d32-4602-bdfe-b5600b7a7dbd,Friends
-13,3,4,3_4,Loyalty?,1,eccde825-665d-42f5-a61a-628e6091b258,Friends
-14,3,5,3_5,"No Invite …
-🎵[playlist:Hurt]",1,ff278bdf-20b6-412d-b6ce-ab72c99313b9,Friends
-15,3,6,3_6,"Fitting In …
-🎵[playlist:Spiral]",1,f08f896d-b052-4915-a04b-a162a8a54797,Friends
-16,3,7,3_7,Inviting …,1,c78369e0-81cb-4d76-91bc-5911e4452b29,Friends
-17,4,1,4_1,Online Life,1,a78369e0-81cb-4c76-91bc-6911e4452b30,Online Life
-18,4,2,4_2,"Scroll. Post. Spiral.
-🎵[playlist:Spiral]",1,ac841676-01ad-4c33-b067-f1ba5986942b,Online Life
-19,4,3,4_3,Real Feels vs Feed Feels,1,567dc605-3515-445b-9a21-bb18db5d8094,Online Life
-20,4,4,4_4,"Posts I Regret, Posts I Miss",1,4b2bae2a-da65-49fa-98c9-3c4543f82128,Online Life
-21,4,5,4_5,"Trends, Friends & Emotional Graduation",1,f3e170a0-6292-44e7-8e22-984e736ae7c3,Online Life
-22,4,6,4_6,Birthday Posts: Joy or Judgment?,1,c9620814-e3d8-4067-a952-60e05667020e,Online Life
-23,5,1,5_1,"Soft Power, Loud Heart",1,ad021302-66f2-4c2e-b8ed-8d8648adf680,Pinky
-24,5,2,5_2,"Tiny Things, Big Feelings",1,7b91e32b-3185-4090-b77d-a168f464717e,Pinky
-25,5,3,5_3,"Daily Drip, Inner Script",1,96f426b4-f10e-4111-b6e5-a5560e05514a,Pinky
-26,6,1,6_1,"Lowkey Legends
-🎵[playlist:Lowkey]",1,3d928ea4-ce89-41ff-b41d-e3f08b52ed5c,Lowkey
-27,6,2,6_2,"Quiet Mode, Full Power",1,fabc58eb-c8d4-40df-b33a-bf4f67df7303,Lowkey
-28,7,1,7_1,Real Me & Summer Vibes,1,94a5aca4-8390-45e7-90cd-a7a80430e263,Personal
-29,7,2,7_2,"Trust, Worth & What You Carry
-🎵[playlist:Believe]",1,f238fbf6-f59a-4e12-bc8c-23792ce1a694,Personal
-30,7,3,7_3,"Regret, Repair, and the Road Ahead",1,fb9d45d3-d052-452e-8aa7-9ccaf8accf4f,Personal
-31,7,4,7_4,"Color, Weather, Sound: You",1,184b9e1f-86a0-4d37-be0b-8fcbd9273f10,Personal
-32,7,5,7_5,What They Don't Get,1,59dffbd5-d94e-4804-bbd3-9fa32c447fff,Personal
-33,7,6,7_6,"Like, You Know, Kinda Confident",1,26de9008-f30e-4e5d-bf1a-009ce95c16cd,Personal
-34,7,7,7_7,Outside Looking In,1,00c2027f-948a-40f7-8bff-fa98119fc7d9,Personal
-35,7,8,7_8,"Inspiration & Direction
-🎵[playlist:Believe]",1,eb4e7798-0bbd-40f7-971d-a22396ac0892,Personal
-36,8,1,8_1,"Forgive, for Real",1,ce5345cb-21ee-481d-8f46-2bf76f452cb8,Healing
-37,8,2,8_2,The Way Forward,1,148ec956-7aa9-493d-996d-c562cb0d941d,Healing
-38,9,1,9_1,"I Know Who I Am
-🎵[playlist:Believe]",1,ea1ab8c0-6326-41b7-9bd4-1eb136cc6780,Defense
-39,9,2,9_2,Someone Has to Do Something,1,ff70ab10-9733-489c-9251-096304f500c3,Defense
-40,10,1,10_1,"Home is a Vibe
-🎵[playlist:Family]",1,a01a8edc-8531-4f31-b5d5-2db71ef141a1,Family
-41,10,2,10_2,Household,1,fe1dd49b-a67c-466a-bee1-346ce35471b9,Family
-42,10,3,10_3,When Home Gets Loud,1,752f937f-796e-4473-9363-5ec3b9b3e1c4,Family
-43,10,4,10_4,Chores,1,17314ec6-fb10-42ca-a5ae-6d1e585d310e,Family
-44,11,1,11_1,"AI and Me: Use It, Build It, or Stop it
-🎵[playlist:AI_and_Me]",1,ab4a7f45-aac8-40b2-b9b6-ebda9b0afd50,Future
-45,11,2,11_2,"Work, Worth & the AI Economy",1,9c3f7c6c-8de8-45fb-b4a0-e6f846bb6d4b,Future
-46,11,3,11_3,"Future Me: Real, Brave, and Still Human
-🎵[playlist:Theme_Song]",1,5c8edc2d-a1b4-4caf-a49d-ff123225a444,Future
-47,12,1,12_1,Ready or Not,1,f8dfe6a4-ee2c-4749-a700-15c2e3c4b1b7,School
-48,12,2,12_2,Between the Bells,1,ad23c57b-844e-40b0-af2b-fb615a28d491,School
-49,12,3,12_3,When You Speak Up,1,77f0a234-b895-404e-82e5-797d386d44de,School
-50,12,4,12_4,Rethinking School ,1,7d60137a-4506-4f82-8c80-6216060ddc37,School
-51,13,1,13_1,Video Games,1,e8dfe6a4-ee2c-4749-a700-15c2e3c4b1b7,Fun_Stuff
-52,13,2,13_2,Food,1,bd23c57b-844e-40b0-af2b-fb615a28d491,Fun_Stuff
-53,13,3,13_3,Movies and Shows,1,87f0a234-b895-404e-82e5-797d386d44de,Fun_Stuff
-54,13,4,13_4,Sports,1,8d60137a-4506-4f82-8c80-6216060ddc37,Fun_Stuff
-55,14,1,14_1,Bodily Betrayal 101,1,7be8b015-0f92-4fd1-932e-b5efa2d02acd,Chaos
-56,14,2,14_2,Cringe & Chaos Edition,1,e123c4f7-2e80-45ad-bca4-cbb415879eb6,Chaos
+🎵[playlist:1st Thing 1st]",1_1,1,2b48a45c-a777-4fbc-8ef7-a1c962b13145
+2,1,1st Thing 1st,2,"Ask 1 Question in Class: That Can Change the Way You See School
+🎵[playlist:1st Thing 1st]",1_2,1,2b48a45c-a777-4fbc-8ef7-a1c962b13146
+3,1,1st Thing 1st,3,Ask 1 Question in Your Daydream: That Can Change the Way You See Your Life,1_3,1,2b48a45c-a777-4fbc-8ef7-a1c962b13147
+4,1,1st Thing 1st,4,Ask 1 Question at Dinner: That Can Change the Way You See Your Parents — and the Way They See You.,1_4,1,2b48a45c-a777-4fbc-8ef7-a1c962b13148
+5,2,Love,1,Imagining Love,2_1,1,2b48a45c-a777-4fbc-8ef7-a1c962b13149
+6,2,Love,2,"Do They Like Me?
+Small Moves, Big Feels
+🎵[playlist:Love]",2_2,1,3b11a3a1-05f4-4862-a6b8-7d8d97a28e33
+7,2,Love,3,Kind of a Couple,2_3,1,5f77b0cb-330e-41a5-b81c-1d3ab1ed8f29
+8,2,Love,4,"Almost, Not Quite",2_4,1,acc6ec24-512e-4d5f-8db6-b5bf86eca745
+9,2,Love,5," Ghost and Goodbye
+The Sky That Stayed
+🎵[playlist:Breakup]",2_5,1,d3d6883b-8ebc-4c63-b44b-694c66279e53
+10,2,Love,6,Love in Beta,2_6,1,e3d6883b-8ebc-4c63-b44b-694c66279e54
+11,3,Friends,1,How to Make Friends,3_1,1,d3d6883b-8ebc-4c63-b44b-694c66279e54
+12,3,Friends,2,How to Keep a Friend,3_2,1,d3d6883b-8ebc-4c63-b44b-694c66279e55
+13,3,Friends,3,Friendship Values,3_3,1,9b08ccfe-4d32-4602-bdfe-b5600b7a7dbd
+14,3,Friends,4,"Friendship Challenges
+🎵[playlist:Hurt]",3_4,1,eccde825-665d-42f5-a61a-628e6091b258
+15,3,Friends,5,Outside Influence,3_5,1,ff278bdf-20b6-412d-b6ce-ab72c99313b9
+16,3,Friends,6,"Fitting In & Left Out
+🎵[playlist:Spiral]",3_6,1,f08f896d-b052-4915-a04b-a162a8a54797
+17,4,Online Life,1,Online Life,4_1,1,a78369e0-81cb-4c76-91bc-6911e4452b30
+18,4,Online Life,2,"Posting, Following & Feeling Seen
+🎵[playlist:Spiral]",4_2,1,ac841676-01ad-4c33-b067-f1ba5986942b
+19,5,Pinky,1,"Soft Power, Loud Heart",5_1,1,ad021302-66f2-4c2e-b8ed-8d8648adf680
+20,5,Pinky,2,"Tiny Things, Big Feelings",5_2,1,7b91e32b-3185-4090-b77d-a168f464717e
+21,5,Pinky,3,"Daily Drip, Inner Script",5_3,1,96f426b4-f10e-4111-b6e5-a5560e05514a
+22,6,Lowkey,1,"Lowkey Legends
+🎵[playlist:Lowkey]",6_1,1,3d928ea4-ce89-41ff-b41d-e3f08b52ed5c
+23,6,Lowkey,2,"Quiet Mode, Full Power",6_2,1,fabc58eb-c8d4-40df-b33a-bf4f67df7303
+24,7,Personal,1,"Energy, creativity, inspiration",7_1,1,94a5aca4-8390-45e7-90cd-a7a80430e263
+25,7,Personal,2,"Pressure Handling
+🎵[playlist:Believe]",7_2,1,f238fbf6-f59a-4e12-bc8c-23792ce1a693
+26,7,Personal,3,Hang Out and Trust,7_3,1,fb9d45d3-d052-452e-8aa7-9ccaf8accf4f
+27,7,Personal,4,"Rejection and Hardship
+🎵[playlist:Hurt]",7_4,1,184b9e1f-86a0-4d37-be0b-8fcbd9273f10
+28,7,Personal,5,"Regret, Repair, and the Road Ahead",7_5,1,59dffbd5-d94e-4804-bbd3-9fa32c447fff
+29,7,Personal,6,Adults & society,7_6,1,26de9008-f30e-4e5d-bf1a-009ce95c16cd
+30,7,Personal,7,"Like, You Know, Kinda Confident",7_7,1,00c2027f-948a-40f7-8bff-fa98119fc7d9
+31,7,Personal,8,"Color, Weather, Sound: You",7_8,1,eb4e7798-0bbd-40f7-971d-a22396ac0892
+32,8,Healing,1,"Forgive, for Real",8_1,1,ce5345cb-21ee-481d-8f46-2bf76f452cb8
+33,8,Healing,2,"The Way Forward
+🎵[playlist:5 Years Later]",8_2,1,148ec956-7aa9-493d-996d-c562cb0d941d
+34,9,Defense,1,"I Know Who I Am
+🎵[playlist:Believe]",9_1,1,ea1ab8c0-6326-41b7-9bd4-1eb136cc6780
+35,9,Defense,2,Someone Has to Do Something,9_2,1,ff70ab10-9733-489c-9251-096304f500c3
+36,10,Family,1,Home is a Vibe,10_1,1,a01a8edc-8531-4f31-b5d5-2db71ef141a1
+37,10,Family,2,When Home Gets Loud,10_2,1,752f937f-796e-4473-9363-5ec3b9b3e1c4
+38,10,Family,3,Chores,10_3,1,17314ec6-fb10-42ca-a5ae-6d1e585d310e
+39,10,Family,4,"What I Wish Them Knew
+🎵[playlist:Family]",10_4,1,71314ec6-fb10-42ca-a5ae-6d1e585d310e
+40,11,Future,1,"AI and Me: Use It, Build It, or Stop it
+🎵[playlist:AI and Me]",11_1,1,ab4a7f45-aac8-40b2-b9b6-ebda9b0afd50
+41,11,Future,2,"Work, Worth & the AI Economy",11_2,1,9c3f7c6c-8de8-45fb-b4a0-e6f846bb6d4b
+42,11,Future,3,"Future Me: Real, Brave, and Still Human
+🎵[playlist:Theme Song]",11_3,1,5c8edc2d-a1b4-4caf-a49d-ff123225a444
+43,12,School,1,Ready or Not,12_1,1,f8dfe6a4-ee2c-4749-a700-15c2e3c4b1b7
+44,12,School,2,From pressure to preparation,12_2,1,ad23c57b-844e-40b0-af2b-fb615a28d491
+45,12,School,3,When You Speak Up,12_3,1,77f0a234-b895-404e-82e5-797d386d44de
+46,12,School,4,Between the Bells,12_4,1,7d60137a-4506-4f82-8c80-6216060ddc37
+47,12,School,5,Rethinking School ,12_5,1,f8dfe6a4-ee2c-4749-a700-15c2e3c4b1b6
+48,13,Fun Stuff,1,Video Games,13_1,1,e8dfe6a4-ee2c-4749-a700-15c2e3c4b1b7
+49,13,Fun Stuff,2,Food,13_2,1,db23c57b-844e-40b0-af2b-fb615a28d491
+50,13,Fun Stuff,3,Music,13_3,1,bd23c57b-844e-40b0-af2b-fb615a28d492
+51,13,Fun Stuff,4,Movies and Shows,13_4,1,87f0a234-b895-404e-82e5-797d386d44de
+52,13,Fun Stuff,5,Sports,13_5,1,8d60137a-4506-4f82-8c80-6216060ddc37
+53,14,Chaos,1,Bodily Betrayal 101,14_1,1,7be8b015-0f92-4fd1-932e-b5efa2d02acd
+54,14,Chaos,2,Cringe & Chaos Edition,14_2,1,e123c4f7-2e80-45ad-bca4-cbb415879eb6
