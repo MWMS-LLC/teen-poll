@@ -46,7 +46,6 @@ def execute_query(query: str, params: tuple = None, fetch: bool = True):
             cursor.execute(query, params)
         else:
             cursor.execute(query)
-
         if fetch:
             cols = [d[0] for d in cursor.description] if cursor.description else []
             rows = cursor.fetchall() if cursor.description else []
@@ -249,8 +248,10 @@ def submit_vote(vote: dict):
                 meta["question_text"], meta["question_number"],
                 meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
                 meta["option_select"], meta["option_code"], meta["option_text"]
-            )
+            ),
+            fetch=False    #  add this
         )
+
         return {
             "message": "Single-choice vote recorded",
             "question_code": question_code,
@@ -281,8 +282,10 @@ def submit_vote(vote: dict):
                     meta["question_text"], meta["question_number"],
                     meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
                     meta["option_select"], meta["option_code"], meta["option_text"]
-                )
+                ),
+                fetch=False    #  add this
             )
+
         return {
             "message": "Checkbox vote recorded",
             "question_code": question_code,
@@ -298,25 +301,22 @@ def submit_vote(vote: dict):
 
         execute_query(
             """
-            INSERT INTO other_responses (
+            INSERT INTO checkbox_responses (
                 user_uuid, question_code, question_text, question_number,
                 category_id, category_name, category_text, block_number,
-                other_text
+                option_select, option_code, option_text
             )
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
             """,
             (
                 user_uuid, question_code,
                 meta["question_text"], meta["question_number"],
                 meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
-                other_text
-            )
+                meta["option_select"], meta["option_code"], meta["option_text"]
+            ),
+            fetch=False    #  add this
         )
-        return {
-            "message": "Free-text response recorded",
-            "question_code": question_code,
-            "other_text": other_text
-        }
+
 
     # If nothing matched
     raise HTTPException(status_code=400, detail="Invalid vote payload")
