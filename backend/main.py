@@ -301,21 +301,23 @@ def submit_vote(vote: dict):
 
         execute_query(
             """
-            INSERT INTO checkbox_responses (
-                user_uuid, question_code, question_text, question_number,
+            INSERT INTO other_responses (
+                user_uuid, question_code,
+                question_text, question_number,
                 category_id, category_name, category_text, block_number,
-                option_select, option_code, option_text
+                other_text
             )
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
             """,
             (
                 user_uuid, question_code,
                 meta["question_text"], meta["question_number"],
                 meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
-                meta["option_select"], meta["option_code"], meta["option_text"]
+                other_text   # 👈 actual free text answer
             ),
-            fetch=False    #  add this
+            fetch=False   # 👈 make sure it commits
         )
+
 
 
     # If nothing matched
