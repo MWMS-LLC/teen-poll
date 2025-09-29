@@ -234,7 +234,7 @@ def submit_vote(vote: dict):
         meta = get_metadata(question_code, option_select)
         if not meta:
             raise HTTPException(status_code=400, detail="Metadata lookup failed")
-
+        print("DEBUG Single-choice meta:", meta)
         execute_query(
             """
             INSERT INTO responses (
@@ -265,6 +265,8 @@ def submit_vote(vote: dict):
             meta = get_metadata(question_code, opt)
             if not meta:
                 continue
+            print("DEBUG Checkbox meta:", meta, "opt:", opt)
+
             execute_query(
                 """
                 INSERT INTO checkbox_responses (
@@ -292,6 +294,7 @@ def submit_vote(vote: dict):
         meta = get_metadata(question_code)
         if not meta:
             raise HTTPException(status_code=400, detail="Metadata lookup failed")
+        print("DEBUG Other meta:", meta)
 
         execute_query(
             """
