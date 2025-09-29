@@ -185,51 +185,26 @@ def create_user(user_uuid: str, year_of_birth: int):
 def submit_vote(vote: dict):
     question_code = vote.get("question_code")
     user_uuid = vote.get("user_uuid")
-    option_select = vote.get("option_select")
-    option_selects = vote.get("option_selects")
-    other_text = vote.get("other_text")
+
+    option_select = vote.get("option_select")       # single-choice or "Other"
+    option_selects = vote.get("option_selects")     # checkbox (list)
+    other_text = vote.get("other_text")             # free text
 
     if not question_code or not user_uuid:
-        raise HTTPException(status_code=400, detail="Missing required fields: question_code and user_uuid")
+        raise HTTPException(
+            status_code=400,
+            detail="Missing required fields: question_code and user_uuid"
+        )
 
     # Normalize: if frontend sends list in option_select, treat it as checkbox
     if isinstance(option_select, list) and not option_selects:
         option_selects = option_select
 
-    # --- Helper: lookup metadata ---
-    def get_metadata(q_code, opt_select=None):
-        if opt_select:
-            rows = execute_query(
-                """
-                SELECT q.question_text, q.question_number,
-                    q.category_id, c.category_name, c.category_text, q.block_number,
-                    o.option_select, o.option_code, o.option_text
-                FROM questions q
-                JOIN categories c ON q.category_id = c.id
-                JOIN options o ON q.question_code = o.question_code
-                WHERE q.question_code = %s AND o.option_select = %s
-                """,
-                (q_code, opt_select)
-            )
-        else:
-            rows = execute_query(
-                """
-                SELECT q.question_text, q.question_number,
-                    q.category_id, c.category_name, c.category_text, q.block_number
-                FROM questions q
-                JOIN categories c ON q.category_id = c.id
-                WHERE q.question_code = %s
-                """,
-                (q_code,)
-            )
-        return rows[0] if rows else None
-
-
     # --- Single-choice ---
     if isinstance(option_select, str) and option_select and not other_text and not option_selects:
         meta = get_metadata(question_code, option_select)
         if not meta:
-            raise HTTPException(status_code=400, detail="Invalid question/option")
+            raise HTTPException(status_code=400, detail="Metadata lookup failed")
 
         execute_query(
             """
@@ -237,19 +212,27 @@ def submit_vote(vote: dict):
                 user_uuid, question_code, question_text, question_number,
                 category_id, category_name, category_text, block_number,
                 option_select, option_code, option_text
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            )
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
             """,
             (
-                user_uuid, question_code, meta["question_text"], meta["question_number"],
+                user_uuid, question_code,
+                meta["question_text"], meta["question_number"],
                 meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
                 meta["option_select"], meta["option_code"], meta["option_text"]
             )
         )
-        return {"message": "Single-choice vote recorded", "question_code": question_code, "option_select": option_select}
+        return {
+            "message": "Single-choice vote recorded",
+            "question_code": question_code,
+            "option_select": option_select
+        }
 
     # --- Checkbox ---
     if option_selects and isinstance(option_selects, list) and not other_text:
         for opt in option_selects:
+            if not isinstance(opt, str) or not opt:
+                continue
             meta = get_metadata(question_code, opt)
             if not meta:
                 continue
@@ -259,21 +242,27 @@ def submit_vote(vote: dict):
                     user_uuid, question_code, question_text, question_number,
                     category_id, category_name, category_text, block_number,
                     option_select, option_code, option_text
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                )
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                 """,
                 (
-                    user_uuid, question_code, meta["question_text"], meta["question_number"],
+                    user_uuid, question_code,
+                    meta["question_text"], meta["question_number"],
                     meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
                     meta["option_select"], meta["option_code"], meta["option_text"]
                 )
             )
-        return {"message": "Checkbox vote recorded", "question_code": question_code, "options": option_selects}
+        return {
+            "message": "Checkbox vote recorded",
+            "question_code": question_code,
+            "options": option_selects
+        }
 
     # --- Free-text / Other ---
     if other_text:
         meta = get_metadata(question_code)
         if not meta:
-            raise HTTPException(status_code=400, detail="Invalid question")
+            raise HTTPException(status_code=400, detail="Metadata lookup failed")
 
         execute_query(
             """
@@ -281,18 +270,24 @@ def submit_vote(vote: dict):
                 user_uuid, question_code, question_text, question_number,
                 category_id, category_name, category_text, block_number,
                 other_text
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            )
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
             """,
             (
-                user_uuid, question_code, meta["question_text"], meta["question_number"],
+                user_uuid, question_code,
+                meta["question_text"], meta["question_number"],
                 meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
                 other_text
             )
         )
-        return {"message": "Free-text response recorded", "question_code": question_code, "other_text": other_text}
+        return {
+            "message": "Free-text response recorded",
+            "question_code": question_code,
+            "other_text": other_text
+        }
 
+    # If nothing matched
     raise HTTPException(status_code=400, detail="Invalid vote payload")
-
 
 
 
