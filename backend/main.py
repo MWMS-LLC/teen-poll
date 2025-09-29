@@ -177,203 +177,185 @@ def create_user(user_uuid: str, year_of_birth: int):
 
 
 # ------------------ Separate vote handler (single, checkbox, other) ------------------
-class VoteIn(BaseModel):
-    user_uuid: str
-    question_code: str
-    option_id: Optional[int] = None
-    other_text: Optional[str] = None
-    option_select: Optional[str] = None   # e.g. "A", "B"
-    is_checkbox: Optional[bool] = False
-    option_ids: Optional[List[int]] = None
-    vote_weight: Optional[float] = 1.0
 
-def _lock_key_for(user_uuid: str, question_code: str) -> int:
-    return zlib.crc32(f"{user_uuid}|{question_code}".encode("utf-8"))
-
-def _get_other_responses_columns():
-    rows = execute_query("""
-        SELECT column_name
-        FROM information_schema.columns
-        WHERE table_name = 'other_responses'
-    """)
-    return {r["column_name"] for r in rows} if rows else set()
-
-def _fetch_option_meta(conn_or_run, option_id):
-    rows = execute_query(
-        "SELECT id, option_select, option_code, option_text FROM options WHERE id = %s",
-        (option_id,)
-    )
-    return rows[0] if rows else None
-
-def _fetch_question_meta(conn_or_run, question_code):
-    rows = execute_query(
-        "SELECT question_text, question_number, category_id, block_number FROM questions WHERE question_code = %s LIMIT 1",
-        (question_code,)
-    )
-    return rows[0] if rows else None
-
-def _fetch_category_meta_by_id(conn_or_run, category_id):
-    rows = execute_query(
-        "SELECT category_name, category_text FROM categories WHERE id = %s LIMIT 1",
-        (category_id,)
-    )
-    return rows[0] if rows else {"category_name": None, "category_text": None}
+    # ----------------------------
+    # Vote submission (single, checkbox, free text)
+    # ----------------------------
 
 @app.post("/api/vote")
-def save_vote(payload: VoteIn):
+def submit_vote(vote: dict):
+    
+    question_code = vote.get("question_code")
+    user_uuid = vote.get("user_uuid")
+
+    option_select = vote.get("option_select")       # single-choice or "Other"
+    option_selects = vote.get("option_selects")     # checkbox (list)
+    other_text = vote.get("other_text")             # free text
+
+    if not question_code or not user_uuid:
+        raise HTTPException(
+            status_code=400,
+            detail="Missing required fields: question_code and user_uuid"
+        )
+
+    # Normalize: if frontend sends list in option_select, treat it as checkbox
+    if isinstance(option_select, list) and not option_selects:
+        option_selects = option_select
+
+    # --- Single-choice ---
+    if isinstance(option_select, str) and option_select and not other_text and not option_selects:
+        execute_query(
+            """
+            INSERT INTO responses (user_uuid, question_code, option_select)
+            VALUES (%s, %s, %s)
+            """,
+            (user_uuid, question_code, option_select)
+        )
+        return {
+            "message": "Single-choice vote recorded",
+            "question_code": question_code,
+            "option_select": option_select
+        }
+
+    # --- Checkbox ---
+    if option_selects and isinstance(option_selects, list) and not other_text:
+        for opt in option_selects:
+            if not isinstance(opt, str) or not opt:
+                continue
+            execute_query(
+                """
+                INSERT INTO checkbox_responses (user_uuid, question_code, option_select)
+                VALUES (%s, %s, %s)
+                """,
+                (user_uuid, question_code, opt)
+            )
+        return {
+            "message": "Checkbox vote recorded",
+            "question_code": question_code,
+            "options": option_selects
+        }
+
+    # --- Free-text / Other ---
+    if other_text:
+        execute_query(
+            """
+            INSERT INTO other_responses (user_uuid, question_code, other_text)
+            VALUES (%s, %s, %s)
+            """,
+            (user_uuid, question_code, other_text)
+        )
+        return {
+            "message": "Free-text response recorded",
+            "question_code": question_code,
+            "other_text": other_text
+        }
+
+    # If nothing matched
+    raise HTTPException(status_code=400, detail="Invalid vote payload")
+
+
+
+    # ----------------------------
+    # Results aggregation
+    # ----------------------------
+
+@app.get("/api/results/{question_code}")
+def get_results(question_code: str):
     """
-    Save a vote (single choice, checkbox, or other text).
-    Keeps history by inserting new rows instead of overwriting.
-    Returns tallies per option.
+    Aggregate results for a question by option_select.
+    Uses only question_code, option_select, and other_text.
     """
-    user_uuid = payload.user_uuid
-    qcode = payload.question_code
-    now = datetime.now(timezone.utc)
-    vw = float(payload.vote_weight or 1.0)
 
-    if not user_uuid or not qcode:
-        raise HTTPException(status_code=422, detail="user_uuid and question_code required")
-
-    # ---------- CHECKBOX MODE ----------
-    if payload.is_checkbox:
-        if not payload.option_ids or not isinstance(payload.option_ids, list):
-            raise HTTPException(status_code=422, detail="option_ids (list) required for checkbox votes")
-
-        qmeta = _fetch_question_meta(None, qcode) or {}
-        catmeta = _fetch_category_meta_by_id(None, qmeta.get("category_id"))
-
-        insert_sql = """
-        INSERT INTO checkbox_responses
-          (user_uuid, question_code, question_text, question_number, category_id, category_name,
-           category_text, option_id, option_select, option_code, option_text, block_number,
-           created_at, vote_weight)
-        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+    # Canonical options (for labels + ordering)
+    options = execute_query(
         """
+        SELECT option_select, option_code, option_text
+        FROM options
+        WHERE question_code = %s
+        ORDER BY option_select
+        """,
+        (question_code,)
+    ) or []
 
-        for opt_id in payload.option_ids:
-            opt_meta = _fetch_option_meta(None, opt_id)
-            if not opt_meta:
-                raise HTTPException(status_code=422, detail=f"option id {opt_id} not found")
-            execute_query(insert_sql, (
-                user_uuid, qcode,
-                qmeta.get("question_text"), qmeta.get("question_number"), qmeta.get("category_id"),
-                catmeta.get("category_name"), catmeta.get("category_text"),
-                opt_meta["id"], opt_meta["option_select"], opt_meta["option_code"], opt_meta["option_text"],
-                qmeta.get("block_number"),
-                now, vw
-            ), fetch=False)
+    # Single-choice counts
+    single_counts = execute_query(
+        """
+        SELECT option_select, COUNT(*) AS votes
+        FROM responses
+        WHERE question_code = %s
+        GROUP BY option_select
+        """,
+        (question_code,)
+    ) or []
 
-        if payload.other_text and payload.other_text.strip():
-            other_cols = _get_other_responses_columns()
-            insert_cols, insert_vals = [], []
-            if "user_uuid" in other_cols: insert_cols.append("user_uuid"); insert_vals.append(user_uuid)
-            if "question_code" in other_cols: insert_cols.append("question_code"); insert_vals.append(qcode)
-            if "other_text" in other_cols: insert_cols.append("other_text"); insert_vals.append(payload.other_text.strip())
-            if "created_at" in other_cols: insert_cols.append("created_at"); insert_vals.append(now)
-            if "vote_weight" in other_cols: insert_cols.append("vote_weight"); insert_vals.append(vw)
-            cols_sql = ",".join(insert_cols)
-            placeholders = ",".join(["%s"] * len(insert_vals))
-            execute_query(f"INSERT INTO other_responses ({cols_sql}) VALUES ({placeholders})", tuple(insert_vals), fetch=False)
+    # Checkbox counts
+    checkbox_counts = execute_query(
+        """
+        SELECT option_select, COUNT(*) AS votes
+        FROM checkbox_responses
+        WHERE question_code = %s
+        GROUP BY option_select
+        """,
+        (question_code,)
+    ) or []
 
-    # ---------- SINGLE CHOICE MODE ----------
-    else:
-        is_other = (payload.option_id is None) and (payload.other_text and payload.other_text.strip())
-        qmeta = _fetch_question_meta(None, qcode) or {}
-        catmeta = _fetch_category_meta_by_id(None, qmeta.get("category_id"))
+    # Free-text rows
+    other_rows = execute_query(
+        """
+        SELECT other_text
+        FROM other_responses
+        WHERE question_code = %s
+        ORDER BY id
+        """,
+        (question_code,)
+    ) or []
 
-        if is_other:
-            other_text = payload.other_text.strip()
-            execute_query("""
-                INSERT INTO responses
-                  (user_uuid, question_code, question_text, question_number, category_id, category_name, category_text,
-                   option_id, option_select, option_code, option_text, block_number, created_at, vote_weight)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-            """, (
-                user_uuid, qcode,
-                qmeta.get("question_text"), qmeta.get("question_number"), qmeta.get("category_id"),
-                catmeta.get("category_name"), catmeta.get("category_text"),
-                None, "Other", "OTHER", other_text[:500],
-                qmeta.get("block_number"),
-                now, vw
-            ), fetch=False)
+    # Convert counts into maps
+    single_map = {r["option_select"]: int(r["votes"]) for r in single_counts if r.get("option_select")}
+    checkbox_map = {r["option_select"]: int(r["votes"]) for r in checkbox_counts if r.get("option_select")}
 
-            other_cols = _get_other_responses_columns()
-            insert_cols, insert_vals = [], []
-            if "user_uuid" in other_cols: insert_cols.append("user_uuid"); insert_vals.append(user_uuid)
-            if "question_code" in other_cols: insert_cols.append("question_code"); insert_vals.append(qcode)
-            if "other_text" in other_cols: insert_cols.append("other_text"); insert_vals.append(other_text)
-            if "created_at" in other_cols: insert_cols.append("created_at"); insert_vals.append(now)
-            if "vote_weight" in other_cols: insert_cols.append("vote_weight"); insert_vals.append(vw)
-            cols_sql = ",".join(insert_cols)
-            placeholders = ",".join(["%s"] * len(insert_vals))
-            execute_query(f"INSERT INTO other_responses ({cols_sql}) VALUES ({placeholders})", tuple(insert_vals), fetch=False)
-
-        else:
-            opt_meta = _fetch_option_meta(None, payload.option_id)
-            if not opt_meta:
-                raise HTTPException(status_code=422, detail=f"option id {payload.option_id} not found")
-            execute_query("""
-                INSERT INTO responses
-                  (user_uuid, question_code, question_text, question_number, category_id, category_name, category_text,
-                   option_id, option_select, option_code, option_text, block_number, created_at, vote_weight)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-            """, (
-                user_uuid, qcode,
-                qmeta.get("question_text"), qmeta.get("question_number"), qmeta.get("category_id"),
-                catmeta.get("category_name"), catmeta.get("category_text"),
-                opt_meta["id"], opt_meta["option_select"], opt_meta["option_code"], opt_meta["option_text"],
-                qmeta.get("block_number"),
-                now, vw
-            ), fetch=False)
-
-    # ---------- AGGREGATES ----------
-    option_rows = execute_query(
-        "SELECT id, option_code FROM options WHERE question_code = %s ORDER BY id",
-        (qcode,)
-    )
-    resp_counts = execute_query("""
-        SELECT r.option_id, COUNT(*) AS votes
-        FROM responses r
-        JOIN (
-            SELECT user_uuid, MAX(created_at) AS latest
-            FROM responses
-            WHERE question_code = %s
-            GROUP BY user_uuid
-        ) sub ON r.user_uuid = sub.user_uuid AND r.created_at = sub.latest
-        WHERE r.question_code = %s AND r.option_id IS NOT NULL
-        GROUP BY r.option_id
-    """, (qcode, qcode))
-    cb_counts = execute_query("""
-        SELECT r.option_id, COUNT(*) AS votes
-        FROM checkbox_responses r
-        JOIN (
-            SELECT user_uuid, MAX(created_at) AS latest
-            FROM checkbox_responses
-            WHERE question_code = %s
-            GROUP BY user_uuid
-        ) sub ON r.user_uuid = sub.user_uuid AND r.created_at = sub.latest
-        WHERE r.question_code = %s AND r.option_id IS NOT NULL
-        GROUP BY r.option_id
-    """, (qcode, qcode))
-
-    resp_map = {r["option_id"]: int(r["votes"]) for r in resp_counts} if resp_counts else {}
-    cb_map = {r["option_id"]: int(r["votes"]) for r in cb_counts} if cb_counts else {}
-
-    results = []
-    for opt in option_rows:
-        oid = opt["id"]
-        results.append({
-            "option_code": opt.get("option_code"),
-            "votes": resp_map.get(oid, 0) + cb_map.get(oid, 0)
+    # Build aggregates aligned to canonical options
+    single_choice_aggregates = []
+    checkbox_aggregates = []
+    for o in options:
+        sel = o["option_select"]
+        single_choice_aggregates.append({
+            "option_select": sel,
+            "option_code":   o.get("option_code"),
+            "option_text":   o.get("option_text"),
+            "votes":         single_map.get(sel, 0),
+        })
+        checkbox_aggregates.append({
+            "option_select": sel,
+            "option_code":   o.get("option_code"),
+            "option_text":   o.get("option_text"),
+            "votes":         checkbox_map.get(sel, 0),
         })
 
+    # Legacy shape (for old frontend compatibility)
+    results_legacy = [
+        {"option_select": r["option_select"], "count": r["votes"]}
+        for r in single_choice_aggregates
+    ]
+
+    # Totals
+    total_responses = (
+        sum(r["votes"] for r in single_choice_aggregates)
+        + sum(r["votes"] for r in checkbox_aggregates)
+        + len(other_rows)
+    )
+
     return {
-        "status": "ok",
-        "question_code": qcode,
-        "results": results
+        "single_choice_aggregates": single_choice_aggregates,
+        "checkbox_aggregates": checkbox_aggregates,
+        "results": results_legacy,
+        "other_responses": other_rows,
+        "total_responses": total_responses,
     }
 
+    # === after unified ===
 
+    
 
 
 
