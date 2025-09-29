@@ -317,6 +317,11 @@ def submit_vote(vote: dict):
             ),
             fetch=False   # 👈 make sure it commits
         )
+        return {
+            "message": "Other response recorded",
+            "question_code": question_code,
+            "other_text": other_text
+        }
 
 
 
