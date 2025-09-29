@@ -177,6 +177,35 @@ def create_user(user_uuid: str, year_of_birth: int):
 
 
 # ------------------ Separate vote handler (single, checkbox, other) ------------------
+def get_metadata(q_code, opt_select=None):
+    if opt_select:
+        rows = execute_query(
+            """
+            SELECT q.question_text, q.question_number,
+                   q.category_id, c.category_name, c.category_text, q.block_number,
+                   o.option_select, o.option_code, o.option_text
+            FROM questions q
+            JOIN categories c ON q.category_id = c.id
+            JOIN options o ON q.question_code = o.question_code
+            WHERE q.question_code = %s AND o.option_select = %s
+            """,
+            (q_code, opt_select)
+        )
+    else:
+        rows = execute_query(
+            """
+            SELECT q.question_text, q.question_number,
+                   q.category_id, c.category_name, c.category_text, q.block_number
+            FROM questions q
+            JOIN categories c ON q.category_id = c.id
+            WHERE q.question_code = %s
+            """,
+            (q_code,)
+        )
+    return rows[0] if rows else None
+
+
+
 
     # ----------------------------
     # Vote submission (single, checkbox, free text)
