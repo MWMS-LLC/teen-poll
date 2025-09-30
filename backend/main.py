@@ -227,7 +227,7 @@ def submit_vote(vote: dict):
 
     # --- Normalize payloads ---
     # Sometimes frontend sends checkbox list under option_select instead of option_selects
-    if isinstance(option_select, list) and not option_selects:
+    if isinstance(option_select, list):
         option_selects = option_select
         option_select = None
 
