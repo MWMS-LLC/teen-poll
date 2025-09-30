@@ -225,6 +225,18 @@ def submit_vote(vote: dict):
     option_selects = vote.get("option_selects", [])  # plural form
     other_text = vote.get("other_text")
 
+
+
+    # --- Debug logging ---
+    print("DEBUG payload:", vote)
+    print("DEBUG option_select type:", type(option_select))
+    print("DEBUG option_select value:", option_select)
+    print("DEBUG option_selects:", option_selects)
+
+
+
+
+
     # --- Normalize payloads ---
     # Sometimes frontend sends checkbox list under option_select instead of option_selects
     if isinstance(option_select, list):
