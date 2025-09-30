@@ -204,19 +204,17 @@ def get_metadata(q_code, opt_select=None):
     return rows[0] if rows else None
 
 
-
-
-    # ----------------------------
-    # Vote submission (single, checkbox, free text)
-    # ----------------------------
+# ----------------------------
+# Vote submission (single, checkbox, free text)
+# ----------------------------
 @app.post("/api/vote")
 def submit_vote(vote: dict):
     question_code = vote.get("question_code")
     user_uuid = vote.get("user_uuid")
 
-    option_select = vote.get("option_select")       # single-choice or "Other"
-    option_selects = vote.get("option_selects")     # checkbox (list)
-    other_text = vote.get("other_text")             # free text
+    option_select = vote.get("option_select")        # single-choice (string)
+    option_selects = vote.get("option_selects", [])  # checkbox (list)
+    other_text = vote.get("other_text")              # free text
 
     if not question_code or not user_uuid:
         raise HTTPException(
@@ -224,24 +222,21 @@ def submit_vote(vote: dict):
             detail="Missing required fields: question_code and user_uuid"
         )
 
-    # Normalize: if frontend sends list in option_select, treat it as checkbox
-    if isinstance(option_select, list) and not option_selects:
-        option_selects = option_select
-
-    # --- Single-choice ---
-    if isinstance(option_select, str) and option_select and not other_text and not option_selects:
+    # ------------------ Single-choice ------------------
+    if isinstance(option_select, str) and option_select and not option_selects and not other_text:
         meta = get_metadata(question_code, option_select)
         if not meta:
             raise HTTPException(status_code=400, detail="Metadata lookup failed")
         print("DEBUG Single-choice meta:", meta)
+
         execute_query(
             """
             INSERT INTO responses (
                 user_uuid, question_code, question_text, question_number,
                 category_id, category_name, category_text, block_number,
-                option_select, option_code, option_text
+                option_select, option_code, option_text, created_at
             )
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
             """,
             (
                 user_uuid, question_code,
@@ -249,20 +244,40 @@ def submit_vote(vote: dict):
                 meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
                 meta["option_select"], meta["option_code"], meta["option_text"]
             ),
-            fetch=False    #  add this
+            fetch=False
         )
 
-        return {
-            "message": "Single-choice vote recorded",
-            "question_code": question_code,
-            "option_select": option_select
-        }
+        if option_select == "Other" and other_text:
+            execute_query(
+                """
+                INSERT INTO other_responses (
+                    user_uuid, question_code,
+                    question_text, question_number,
+                    category_id, category_name, category_text, block_number,
+                    other_text, created_at
+                )
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
+                """,
+                (
+                    user_uuid, question_code,
+                    meta["question_text"], meta["question_number"],
+                    meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
+                    other_text
+                ),
+                fetch=False
+            )
 
-    # --- Checkbox ---
-    if option_selects and isinstance(option_selects, list) and not other_text:
+        return {"message": "Single-choice vote recorded", "question_code": question_code}
+
+    # ------------------ Checkbox ------------------
+    if option_selects and isinstance(option_selects, list):
+        n = len(option_selects)
+        if n == 0:
+            raise HTTPException(status_code=400, detail="No options selected")
+
+        weight = 1.0 / n
+
         for opt in option_selects:
-            if not isinstance(opt, str) or not opt:
-                continue
             meta = get_metadata(question_code, opt)
             if not meta:
                 continue
@@ -273,73 +288,103 @@ def submit_vote(vote: dict):
                 INSERT INTO checkbox_responses (
                     user_uuid, question_code, question_text, question_number,
                     category_id, category_name, category_text, block_number,
-                    option_select, option_code, option_text
+                    option_select, option_code, option_text,
+                    vote_weight, created_at
                 )
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
                 """,
                 (
                     user_uuid, question_code,
                     meta["question_text"], meta["question_number"],
                     meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
-                    meta["option_select"], meta["option_code"], meta["option_text"]
+                    meta["option_select"], meta["option_code"], meta["option_text"],
+                    weight
                 ),
-                fetch=False    #  add this
+                fetch=False
             )
 
-        return {
-            "message": "Checkbox vote recorded",
-            "question_code": question_code,
-            "options": option_selects
-        }
+            if opt == "Other" and other_text:
+                execute_query(
+                    """
+                    INSERT INTO other_responses (
+                        user_uuid, question_code,
+                        question_text, question_number,
+                        category_id, category_name, category_text, block_number,
+                        other_text, created_at
+                    )
+                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
+                    """,
+                    (
+                        user_uuid, question_code,
+                        meta["question_text"], meta["question_number"],
+                        meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
+                        other_text
+                    ),
+                    fetch=False
+                )
 
-    # --- Free-text / Other ---
-    if other_text:
+        return {"message": "Checkbox vote recorded", "question_code": question_code}
+
+    # ------------------ Free-text only (edge case) ------------------
+    if other_text and not option_select and not option_selects:
         meta = get_metadata(question_code)
         if not meta:
             raise HTTPException(status_code=400, detail="Metadata lookup failed")
-        print("DEBUG Other meta:", meta)
+        print("DEBUG Other-only meta:", meta)
 
+        # Insert "Other" as a bar
+        execute_query(
+            """
+            INSERT INTO responses (
+                user_uuid, question_code, question_text, question_number,
+                category_id, category_name, category_text, block_number,
+                option_select, option_code, option_text, created_at
+            )
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,'Other',NULL,'Other',NOW())
+            """,
+            (
+                user_uuid, question_code,
+                meta["question_text"], meta["question_number"],
+                meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"]
+            ),
+            fetch=False
+        )
+
+        # Save free text
         execute_query(
             """
             INSERT INTO other_responses (
                 user_uuid, question_code,
                 question_text, question_number,
                 category_id, category_name, category_text, block_number,
-                other_text
+                other_text, created_at
             )
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
             """,
             (
                 user_uuid, question_code,
                 meta["question_text"], meta["question_number"],
                 meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
-                other_text   # 👈 actual free text answer
+                other_text
             ),
-            fetch=False   # 👈 make sure it commits
+            fetch=False
         )
-        return {
-            "message": "Other response recorded",
-            "question_code": question_code,
-            "other_text": other_text
-        }
 
+        return {"message": "Other-only response recorded", "question_code": question_code}
 
-
-    # If nothing matched
+    # ------------------ Invalid ------------------
     raise HTTPException(status_code=400, detail="Invalid vote payload")
 
 
 
-
-    # ----------------------------
-    # Results aggregation
-    # ----------------------------
-
+# ----------------------------
+# Results aggregation
+# ----------------------------
 @app.get("/api/results/{question_code}")
 def get_results(question_code: str):
     """
     Aggregate results for a question.
-    Reads directly from results tables which already store full metadata.
+    Uses vote_weight for checkbox questions.
     """
 
     # --- Single-choice counts ---
@@ -366,7 +411,7 @@ def get_results(question_code: str):
         (question_code,)
     ) or []
 
-    # --- Checkbox counts ---
+    # --- Checkbox counts (use SUM(vote_weight)) ---
     checkbox_aggregates = execute_query(
         """
         SELECT
@@ -379,7 +424,7 @@ def get_results(question_code: str):
             category_name,
             category_text,
             block_number,
-            COUNT(*) AS votes
+            COALESCE(SUM(vote_weight), 0) AS votes
         FROM checkbox_responses
         WHERE question_code = %s
         GROUP BY option_select, option_code, option_text,
@@ -428,6 +473,7 @@ def get_results(question_code: str):
         "results": results_legacy,
         "total_responses": total_responses,
     }
+
 
 
 
