@@ -207,172 +207,171 @@ def get_metadata(q_code, opt_select=None):
 # ----------------------------
 # Vote submission (single, checkbox, free text)
 # ----------------------------
+# ----------------------------
+# Submit vote
+# ----------------------------
 @app.post("/api/vote")
 def submit_vote(vote: dict):
-    question_code = vote.get("question_code")
+    """
+    Accepts a vote payload and stores it in the appropriate table:
+      - Single-choice → responses
+      - Checkbox → checkbox_responses (with vote_weight)
+      - Other → other_responses (and placeholder in chart)
+    """
+
     user_uuid = vote.get("user_uuid")
+    question_code = vote.get("question_code")
+    option_select = vote.get("option_select")
+    option_selects = vote.get("option_selects", [])  # plural form
+    other_text = vote.get("other_text")
 
-    option_select = vote.get("option_select")        # single-choice (string)
-    option_selects = vote.get("option_selects", [])  # checkbox (list)
-    other_text = vote.get("other_text")              # free text
+    # --- Normalize payloads ---
+    # Sometimes frontend sends checkbox list under option_select instead of option_selects
+    if isinstance(option_select, list) and not option_selects:
+        option_selects = option_select
+        option_select = None
 
-    if not question_code or not user_uuid:
-        raise HTTPException(
-            status_code=400,
-            detail="Missing required fields: question_code and user_uuid"
-        )
+    # Lookup question metadata
+    meta = get_metadata(question_code)
 
-    # ------------------ Single-choice ------------------
-    if isinstance(option_select, str) and option_select and not option_selects and not other_text:
-        meta = get_metadata(question_code, option_select)
-        if not meta:
-            raise HTTPException(status_code=400, detail="Metadata lookup failed")
-        print("DEBUG Single-choice meta:", meta)
+    # --- Handle checkbox votes ---
+    if option_selects:
+        n = len(option_selects)
+        if n == 0:
+            raise HTTPException(status_code=400, detail="No checkbox options provided")
+        weight = 1.0 / n
+        for opt in option_selects:
+            execute_query(
+                """
+                INSERT INTO checkbox_responses
+                (user_uuid, question_code, question_text, question_number,
+                 category_id, category_name, category_text, block_number,
+                 option_id, option_select, option_code, option_text,
+                 vote_weight, created_at)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
+                """,
+                (
+                    user_uuid, question_code, meta["question_text"], meta["question_number"],
+                    meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
+                    None, opt, f"{question_code}_{opt}", opt, weight
+                ),
+                fetch=False
+            )
 
+        # Handle free-text "Other" if provided
+        if other_text:
+            execute_query(
+                """
+                INSERT INTO other_responses
+                (user_uuid, question_code, question_text, question_number,
+                 category_id, category_name, category_text, block_number,
+                 other_text, created_at)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
+                """,
+                (
+                    user_uuid, question_code, meta["question_text"], meta["question_number"],
+                    meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
+                    other_text
+                ),
+                fetch=False
+            )
+            # Also add a placeholder "Other" bar
+            execute_query(
+                """
+                INSERT INTO checkbox_responses
+                (user_uuid, question_code, question_text, question_number,
+                 category_id, category_name, category_text, block_number,
+                 option_id, option_select, option_code, option_text,
+                 vote_weight, created_at)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
+                """,
+                (
+                    user_uuid, question_code, meta["question_text"], meta["question_number"],
+                    meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
+                    None, "Other", f"{question_code}_Other", "Other", 1.0
+                ),
+                fetch=False
+            )
+
+        return {"message": "Checkbox vote recorded"}
+
+    # --- Handle single-choice votes ---
+    if option_select:
         execute_query(
             """
-            INSERT INTO responses (
-                user_uuid, question_code, question_text, question_number,
-                category_id, category_name, category_text, block_number,
-                option_select, option_code, option_text, created_at
-            )
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
+            INSERT INTO responses
+            (user_uuid, question_code, question_text, question_number,
+             category_id, category_name, category_text, block_number,
+             option_id, option_select, option_code, option_text,
+             created_at)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
             """,
             (
-                user_uuid, question_code,
-                meta["question_text"], meta["question_number"],
+                user_uuid, question_code, meta["question_text"], meta["question_number"],
                 meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
-                meta["option_select"], meta["option_code"], meta["option_text"]
+                None, option_select, f"{question_code}_{option_select}", option_select
             ),
             fetch=False
         )
 
+        # Handle free-text "Other" if included with single-choice
         if option_select == "Other" and other_text:
             execute_query(
                 """
-                INSERT INTO other_responses (
-                    user_uuid, question_code,
-                    question_text, question_number,
-                    category_id, category_name, category_text, block_number,
-                    other_text, created_at
-                )
+                INSERT INTO other_responses
+                (user_uuid, question_code, question_text, question_number,
+                 category_id, category_name, category_text, block_number,
+                 other_text, created_at)
                 VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
                 """,
                 (
-                    user_uuid, question_code,
-                    meta["question_text"], meta["question_number"],
+                    user_uuid, question_code, meta["question_text"], meta["question_number"],
                     meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
                     other_text
                 ),
                 fetch=False
             )
 
-        return {"message": "Single-choice vote recorded", "question_code": question_code}
+        return {"message": "Single-choice vote recorded"}
 
-    # ------------------ Checkbox ------------------
-    if option_selects and isinstance(option_selects, list):
-        n = len(option_selects)
-        if n == 0:
-            raise HTTPException(status_code=400, detail="No options selected")
-
-        weight = 1.0 / n
-
-        for opt in option_selects:
-            meta = get_metadata(question_code, opt)
-            if not meta:
-                continue
-            print("DEBUG Checkbox meta:", meta, "opt:", opt)
-
-            execute_query(
-                """
-                INSERT INTO checkbox_responses (
-                    user_uuid, question_code, question_text, question_number,
-                    category_id, category_name, category_text, block_number,
-                    option_select, option_code, option_text,
-                    vote_weight, created_at
-                )
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
-                """,
-                (
-                    user_uuid, question_code,
-                    meta["question_text"], meta["question_number"],
-                    meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
-                    meta["option_select"], meta["option_code"], meta["option_text"],
-                    weight
-                ),
-                fetch=False
-            )
-
-            if opt == "Other" and other_text:
-                execute_query(
-                    """
-                    INSERT INTO other_responses (
-                        user_uuid, question_code,
-                        question_text, question_number,
-                        category_id, category_name, category_text, block_number,
-                        other_text, created_at
-                    )
-                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
-                    """,
-                    (
-                        user_uuid, question_code,
-                        meta["question_text"], meta["question_number"],
-                        meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
-                        other_text
-                    ),
-                    fetch=False
-                )
-
-        return {"message": "Checkbox vote recorded", "question_code": question_code}
-
-    # ------------------ Free-text only (edge case) ------------------
-    if other_text and not option_select and not option_selects:
-        meta = get_metadata(question_code)
-        if not meta:
-            raise HTTPException(status_code=400, detail="Metadata lookup failed")
-        print("DEBUG Other-only meta:", meta)
-
-        # Insert "Other" as a bar
+    # --- Handle Other-text only ---
+    if other_text:
         execute_query(
             """
-            INSERT INTO responses (
-                user_uuid, question_code, question_text, question_number,
-                category_id, category_name, category_text, block_number,
-                option_select, option_code, option_text, created_at
-            )
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,'Other',NULL,'Other',NOW())
-            """,
-            (
-                user_uuid, question_code,
-                meta["question_text"], meta["question_number"],
-                meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"]
-            ),
-            fetch=False
-        )
-
-        # Save free text
-        execute_query(
-            """
-            INSERT INTO other_responses (
-                user_uuid, question_code,
-                question_text, question_number,
-                category_id, category_name, category_text, block_number,
-                other_text, created_at
-            )
+            INSERT INTO other_responses
+            (user_uuid, question_code, question_text, question_number,
+             category_id, category_name, category_text, block_number,
+             other_text, created_at)
             VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
             """,
             (
-                user_uuid, question_code,
-                meta["question_text"], meta["question_number"],
+                user_uuid, question_code, meta["question_text"], meta["question_number"],
                 meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
                 other_text
             ),
             fetch=False
         )
+        # Also add placeholder "Other" bar
+        execute_query(
+            """
+            INSERT INTO responses
+            (user_uuid, question_code, question_text, question_number,
+             category_id, category_name, category_text, block_number,
+             option_id, option_select, option_code, option_text,
+             created_at)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
+            """,
+            (
+                user_uuid, question_code, meta["question_text"], meta["question_number"],
+                meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
+                None, "Other", f"{question_code}_Other", "Other"
+            ),
+            fetch=False
+        )
 
-        return {"message": "Other-only response recorded", "question_code": question_code}
+        return {"message": "Other response recorded"}
 
-    # ------------------ Invalid ------------------
+    # --- If nothing matched ---
     raise HTTPException(status_code=400, detail="Invalid vote payload")
 
 
