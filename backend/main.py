@@ -239,18 +239,11 @@ def submit_vote(vote: dict):
     if other_text:
         other_text = other_text.strip()
 
-
-
-
     # --- Debug logging ---
     print("DEBUG payload:", vote)
     print("DEBUG option_select type:", type(option_select))
     print("DEBUG option_select value:", option_select)
     print("DEBUG option_selects:", option_selects)
-
-
-
-
 
     # --- Normalize payloads ---
     # Sometimes frontend sends checkbox list under option_select instead of option_selects
@@ -271,11 +264,7 @@ def submit_vote(vote: dict):
             execute_query(
                 """
                 INSERT INTO checkbox_responses
-                (user_uuid, question_code, question_text, question_number,
-                 category_id, category_name, category_text, block_number,
-                 option_id, option_select, option_code, option_text,
-                 vote_weight, created_at)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
+                ...
                 """,
                 (
                     user_uuid, question_code, meta["question_text"], meta["question_number"],
@@ -285,42 +274,48 @@ def submit_vote(vote: dict):
                 fetch=False
             )
 
-        # Handle free-text "Other" if provided
-        if other_text:
-            execute_query(
-                """
-                INSERT INTO other_responses
-                (user_uuid, question_code, question_text, question_number,
-                 category_id, category_name, category_text, block_number,
-                 other_text, created_at)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
-                """,
-                (
-                    user_uuid, question_code, meta["question_text"], meta["question_number"],
-                    meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
-                    other_text
-                ),
-                fetch=False
-            )
-            # Also add a placeholder "Other" bar
-            execute_query(
-                """
-                INSERT INTO checkbox_responses
-                (user_uuid, question_code, question_text, question_number,
-                 category_id, category_name, category_text, block_number,
-                 option_id, option_select, option_code, option_text,
-                 vote_weight, created_at)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
-                """,
-                (
-                    user_uuid, question_code, meta["question_text"], meta["question_number"],
-                    meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
-                    None, "Other", f"{question_code}_Other", "Other", weight
-                ),
-                fetch=False
-            )
+        # ✅ Add this line right here:
+        return {"message": "Checkbox vote(s) recorded", "question_code": question_code}
 
-        return {"message": "Checkbox vote recorded"}
+    # --- Handle Other-text only (no option selected) ---
+    if other_text and not option_select and not option_selects:
+        # save the free text
+        execute_query(
+            """
+            INSERT INTO other_responses
+            (user_uuid, question_code, question_text, question_number,
+            category_id, category_name, category_text, block_number,
+            other_text, created_at)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
+            """,
+            (
+                user_uuid, question_code,
+                meta["question_text"], meta["question_number"],
+                meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
+                other_text,
+            ),
+            fetch=False,
+        )      
+        # create a bar so charts show OTHER
+        execute_query(
+            """
+            INSERT INTO responses
+            (user_uuid, question_code, question_text, question_number,
+            category_id, category_name, category_text, block_number,
+            option_id, option_select, option_code, option_text,
+            created_at)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
+            """,
+            (
+                user_uuid, question_code,
+                meta["question_text"], meta["question_number"],
+                meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
+                None, OTHER_KEY, f"{question_code}_{OTHER_KEY}", "Other",
+            ),
+            fetch=False,
+        )
+        return {"message": "Other-only response recorded", "question_code": question_code}
+
 
     # --- Handle single-choice votes ---
     if option_select:
@@ -328,9 +323,9 @@ def submit_vote(vote: dict):
             """
             INSERT INTO responses
             (user_uuid, question_code, question_text, question_number,
-             category_id, category_name, category_text, block_number,
-             option_id, option_select, option_code, option_text,
-             created_at)
+            category_id, category_name, category_text, block_number,
+            option_id, option_select, option_code, option_text,
+            created_at)
             VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
             """,
             (
@@ -341,47 +336,30 @@ def submit_vote(vote: dict):
             fetch=False
         )
 
-        # Handle free-text "Other" if included with single-choice
-    if option_select == OTHER_KEY and other_text:
-        execute_query(
-            """
-            INSERT INTO other_responses
-            (user_uuid, question_code, question_text, question_number,
-            category_id, category_name, category_text, block_number,
-            other_text, created_at)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
-            """,
-            (
-                user_uuid, question_code,
-                meta["question_text"], meta["question_number"],
-                meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
-                other_text,
-            ),
-            fetch=False,
-        )
+        # If user selected OTHER and typed free text, also store it
+        if option_select == "OTHER" and other_text:
+            execute_query(
+                """
+                INSERT INTO other_responses
+                (user_uuid, question_code, question_text, question_number,
+                category_id, category_name, category_text, block_number,
+                other_text, created_at)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
+                """,
+                (
+                    user_uuid, question_code,
+                    meta["question_text"], meta["question_number"],
+                    meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
+                    other_text,
+                ),
+                fetch=False,
+            )
 
-        return {"message": "Single-choice vote recorded"}
-
-    # --- Handle Other-text only ---
-    if option_select == OTHER_KEY and other_text:
-        execute_query(
-            """
-            INSERT INTO other_responses
-            (user_uuid, question_code, question_text, question_number,
-            category_id, category_name, category_text, block_number,
-            other_text, created_at)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
-            """,
-            (
-                user_uuid, question_code,
-                meta["question_text"], meta["question_number"],
-                meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
-                other_text,
-            ),
-            fetch=False,
-        )
+        # ✅ Always return here (so frontend shows text box, chart updates, no 400)
+        return {"message": "Single-choice vote recorded", "question_code": question_code}
 
 
+    
     # --- If nothing matched ---
     raise HTTPException(status_code=400, detail="Invalid vote payload")
 
@@ -393,96 +371,66 @@ def submit_vote(vote: dict):
 @app.get("/api/results/{question_code}")
 def get_results(question_code: str):
     """
-    Aggregate results for a question.
-    Uses vote_weight for checkbox questions.
+    Aggregates results for a question:
+      - Single-choice from responses
+      - Checkbox from checkbox_responses
     """
 
-    # --- Single-choice counts ---
-    single_choice_aggregates = execute_query(
+    # Get all option definitions for the question
+    option_rows = execute_query(
+        "SELECT option_select, option_code, option_text FROM options WHERE question_code = %s ORDER BY id",
+        (question_code,)
+    ) or []
+
+    # Single-choice counts
+    single_counts = execute_query(
         """
-        SELECT
-            option_select,
-            option_code,
-            option_text,
-            question_text,
-            question_number,
-            category_id,
-            category_name,
-            category_text,
-            block_number,
-            COUNT(*) AS votes
+        SELECT option_select, COUNT(*)::float as votes
         FROM responses
         WHERE question_code = %s
-        GROUP BY option_select, option_code, option_text,
-                 question_text, question_number,
-                 category_id, category_name, category_text, block_number
-        ORDER BY option_select
+        GROUP BY option_select
         """,
         (question_code,)
     ) or []
 
-    # --- Checkbox counts (use SUM(vote_weight)) ---
-    checkbox_aggregates = execute_query(
+    # Checkbox counts
+    checkbox_counts = execute_query(
         """
-        SELECT
-            option_select,
-            option_code,
-            option_text,
-            question_text,
-            question_number,
-            category_id,
-            category_name,
-            category_text,
-            block_number,
-            COALESCE(SUM(vote_weight), 0) AS votes
+        SELECT option_select, SUM(vote_weight) as votes
         FROM checkbox_responses
         WHERE question_code = %s
-        GROUP BY option_select, option_code, option_text,
-                 question_text, question_number,
-                 category_id, category_name, category_text, block_number
-        ORDER BY option_select
+        GROUP BY option_select
         """,
         (question_code,)
     ) or []
 
-    # --- Free-text / Other responses ---
-    other_responses = execute_query(
-        """
-        SELECT
-            other_text,
-            question_text,
-            question_number,
-            category_id,
-            category_name,
-            category_text,
-            block_number
-        FROM other_responses
-        WHERE question_code = %s
-        ORDER BY id
-        """,
-        (question_code,)
-    ) or []
+    # --- Merge counts into one dict ---
+    counts = {}
+    for row in single_counts + checkbox_counts:
+        sel = row["option_select"]
+        counts[sel] = counts.get(sel, 0) + row["votes"]
 
-    # --- Legacy shape (for compatibility) ---
-    results_legacy = [
-        {"option_select": row["option_select"], "count": row["votes"]}
-        for row in single_choice_aggregates
-    ]
-
-    # --- Totals ---
-    total_responses = (
-        sum(r["votes"] for r in single_choice_aggregates)
-        + sum(r["votes"] for r in checkbox_aggregates)
-        + len(other_responses)
-    )
+    # --- Build results list from canonical options ---
+    results = []
+    total = 0
+    for opt in option_rows:
+        sel = opt["option_select"]
+        votes = counts.get(sel, 0)
+        results.append({
+            "option_select": sel,
+            "option_code": opt["option_code"],
+            "option_text": opt["option_text"],
+            "votes": votes
+        })
+        total += votes
 
     return {
-        "single_choice_aggregates": single_choice_aggregates,
-        "checkbox_aggregates": checkbox_aggregates,
-        "other_responses": other_responses,
-        "results": results_legacy,
-        "total_responses": total_responses,
+        "question_code": question_code,
+        "results": results,
+        "total_responses": total
     }
+
+
 
 
 
