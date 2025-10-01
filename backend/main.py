@@ -264,7 +264,11 @@ def submit_vote(vote: dict):
             execute_query(
                 """
                 INSERT INTO checkbox_responses
-                ...
+                (user_uuid, question_code, question_text, question_number,
+                category_id, category_name, category_text, block_number,
+                option_id, option_select, option_code, option_text,
+                vote_weight, created_at)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
                 """,
                 (
                     user_uuid, question_code, meta["question_text"], meta["question_number"],
@@ -273,6 +277,7 @@ def submit_vote(vote: dict):
                 ),
                 fetch=False
             )
+
 
         # ✅ Add this line right here:
         return {"message": "Checkbox vote(s) recorded", "question_code": question_code}
