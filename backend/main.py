@@ -225,6 +225,21 @@ def submit_vote(vote: dict):
     option_selects = vote.get("option_selects", [])  # plural form
     other_text = vote.get("other_text")
 
+    OTHER_KEY = "OTHER"
+    def _is_other(v): 
+        return isinstance(v, str) and v.strip().upper() == OTHER_KEY
+
+    # --- Normalize "Other" values ---
+    if option_select and _is_other(option_select):
+        option_select = OTHER_KEY
+
+    if option_selects:
+        option_selects = [OTHER_KEY if _is_other(v) else v for v in option_selects]
+
+    if other_text:
+        other_text = other_text.strip()
+
+
 
 
     # --- Debug logging ---
@@ -300,7 +315,7 @@ def submit_vote(vote: dict):
                 (
                     user_uuid, question_code, meta["question_text"], meta["question_number"],
                     meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
-                    None, "Other", f"{question_code}_Other", "Other", 1.0
+                    None, "Other", f"{question_code}_Other", "Other", weight
                 ),
                 fetch=False
             )
@@ -327,61 +342,45 @@ def submit_vote(vote: dict):
         )
 
         # Handle free-text "Other" if included with single-choice
-        if option_select == "Other" and other_text:
-            execute_query(
-                """
-                INSERT INTO other_responses
-                (user_uuid, question_code, question_text, question_number,
-                 category_id, category_name, category_text, block_number,
-                 other_text, created_at)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
-                """,
-                (
-                    user_uuid, question_code, meta["question_text"], meta["question_number"],
-                    meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
-                    other_text
-                ),
-                fetch=False
-            )
-
-        return {"message": "Single-choice vote recorded"}
-
-    # --- Handle Other-text only ---
-    if other_text:
+    if option_select == OTHER_KEY and other_text:
         execute_query(
             """
             INSERT INTO other_responses
             (user_uuid, question_code, question_text, question_number,
-             category_id, category_name, category_text, block_number,
-             other_text, created_at)
+            category_id, category_name, category_text, block_number,
+            other_text, created_at)
             VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
             """,
             (
-                user_uuid, question_code, meta["question_text"], meta["question_number"],
+                user_uuid, question_code,
+                meta["question_text"], meta["question_number"],
                 meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
-                other_text
+                other_text,
             ),
-            fetch=False
-        )
-        # Also add placeholder "Other" bar
-        execute_query(
-            """
-            INSERT INTO responses
-            (user_uuid, question_code, question_text, question_number,
-             category_id, category_name, category_text, block_number,
-             option_id, option_select, option_code, option_text,
-             created_at)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
-            """,
-            (
-                user_uuid, question_code, meta["question_text"], meta["question_number"],
-                meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
-                None, "Other", f"{question_code}_Other", "Other"
-            ),
-            fetch=False
+            fetch=False,
         )
 
-        return {"message": "Other response recorded"}
+        return {"message": "Single-choice vote recorded"}
+
+    # --- Handle Other-text only ---
+    if option_select == OTHER_KEY and other_text:
+        execute_query(
+            """
+            INSERT INTO other_responses
+            (user_uuid, question_code, question_text, question_number,
+            category_id, category_name, category_text, block_number,
+            other_text, created_at)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
+            """,
+            (
+                user_uuid, question_code,
+                meta["question_text"], meta["question_number"],
+                meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
+                other_text,
+            ),
+            fetch=False,
+        )
+
 
     # --- If nothing matched ---
     raise HTTPException(status_code=400, detail="Invalid vote payload")
