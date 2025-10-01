@@ -225,6 +225,15 @@ def submit_vote(vote: dict):
     option_selects = vote.get("option_selects", [])  # plural form
     other_text = vote.get("other_text")
 
+ # ✅ Add this debug line right here:
+    print("DEBUG RAW PAYLOAD:", vote)
+    print("DEBUG option_select:", option_select)
+    print("DEBUG option_selects:", option_selects)
+    print("DEBUG other_text:", other_text)
+
+
+
+
     OTHER_KEY = "OTHER"
     def _is_other(v): 
         return isinstance(v, str) and v.strip().upper() == OTHER_KEY
@@ -261,6 +270,7 @@ def submit_vote(vote: dict):
             raise HTTPException(status_code=400, detail="No checkbox options provided")
         weight = 1.0 / n
         for opt in option_selects:
+            # Always insert the vote itself
             execute_query(
                 """
                 INSERT INTO checkbox_responses
@@ -278,9 +288,28 @@ def submit_vote(vote: dict):
                 fetch=False
             )
 
+            # ✅ If "OTHER" was selected and free text exists, also store it
+            if opt == "OTHER" and other_text:
+                execute_query(
+                    """
+                    INSERT INTO other_responses
+                    (user_uuid, question_code, question_text, question_number,
+                    category_id, category_name, category_text, block_number,
+                    other_text, created_at)
+                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
+                    """,
+                    (
+                        user_uuid, question_code,
+                        meta["question_text"], meta["question_number"],
+                        meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
+                        other_text,
+                    ),
+                    fetch=False,
+                )
 
-        # ✅ Add this line right here:
+        # ✅ Always return here
         return {"message": "Checkbox vote(s) recorded", "question_code": question_code}
+
 
     # --- Handle Other-text only (no option selected) ---
     if other_text and not option_select and not option_selects:
@@ -373,17 +402,26 @@ def submit_vote(vote: dict):
 # ----------------------------
 # Results aggregation
 # ----------------------------
+# ----------------------------
+# Results aggregation
+# ----------------------------
 @app.get("/api/results/{question_code}")
 def get_results(question_code: str):
     """
     Aggregates results for a question:
       - Single-choice from responses
       - Checkbox from checkbox_responses
+      - Total responses reported as integer (number of distinct users)
     """
 
     # Get all option definitions for the question
     option_rows = execute_query(
-        "SELECT option_select, option_code, option_text FROM options WHERE question_code = %s ORDER BY id",
+        """
+        SELECT option_select, option_code, option_text
+        FROM options
+        WHERE question_code = %s
+        ORDER BY id
+        """,
         (question_code,)
     ) or []
 
@@ -398,10 +436,10 @@ def get_results(question_code: str):
         (question_code,)
     ) or []
 
-    # Checkbox counts
+    # Checkbox counts (safe cast + handle empty case)
     checkbox_counts = execute_query(
         """
-        SELECT option_select, SUM(vote_weight) as votes
+        SELECT option_select, COALESCE(SUM(vote_weight),0)::float as votes
         FROM checkbox_responses
         WHERE question_code = %s
         GROUP BY option_select
@@ -417,17 +455,28 @@ def get_results(question_code: str):
 
     # --- Build results list from canonical options ---
     results = []
-    total = 0
     for opt in option_rows:
         sel = opt["option_select"]
         votes = counts.get(sel, 0)
         results.append({
-            "option_select": sel,
+            "option_select": opt["option_select"],  # keep display form from options table
             "option_code": opt["option_code"],
             "option_text": opt["option_text"],
             "votes": votes
         })
-        total += votes
+
+    # --- Total responses as integer (distinct users) ---
+    single_total = execute_query(
+        "SELECT COUNT(DISTINCT user_uuid) AS n FROM responses WHERE question_code = %s",
+        (question_code,)
+    )[0]["n"]
+
+    checkbox_total = execute_query(
+        "SELECT COUNT(DISTINCT user_uuid) AS n FROM checkbox_responses WHERE question_code = %s",
+        (question_code,)
+    )[0]["n"]
+
+    total = int(single_total + checkbox_total)
 
     return {
         "question_code": question_code,
