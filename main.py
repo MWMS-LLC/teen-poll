@@ -42,7 +42,9 @@ origins = [
     "https://myworldmysay.com",
     "https://www.myworldmysay.com",
     "https://api.myworldmysay.com",
-    "https://teen.myworldmysay.com"
+    "https://teen.myworldmysay.com",
+    "https://parents.myworldmysay.com",
+    "https://www.parents.myworldmysay.com"
 ]
 
 app.add_middleware(
@@ -458,8 +460,12 @@ def get_results(question_code: str):
     single_counts = execute_query(
         """
         SELECT option_select, COUNT(*)::float as votes
-        FROM responses
-        WHERE question_code = %s
+        FROM (
+            SELECT DISTINCT ON (user_uuid) option_select
+            FROM responses
+            WHERE question_code = %s
+            ORDER BY user_uuid, created_at DESC
+        ) latest_votes
         GROUP BY option_select
         """,
         (question_code,)
@@ -469,8 +475,12 @@ def get_results(question_code: str):
     checkbox_counts = execute_query(
         """
         SELECT option_select, COALESCE(SUM(weight),0)::float as votes
-        FROM checkbox_responses
-        WHERE question_code = %s
+        FROM (
+            SELECT DISTINCT ON (user_uuid, option_select) weight, option_select
+            FROM checkbox_responses
+            WHERE question_code = %s
+            ORDER BY user_uuid, option_select, created_at DESC
+        ) latest_checkbox_votes
         GROUP BY option_select
         """,
         (question_code,)
@@ -499,10 +509,14 @@ def get_results(question_code: str):
     total_result = execute_query(
         """
         SELECT COUNT(DISTINCT user_uuid) AS n FROM (
-            SELECT user_uuid FROM responses WHERE question_code = %s
+            SELECT user_uuid
+            FROM responses
+            WHERE question_code = %s
             UNION
-            SELECT user_uuid FROM checkbox_responses WHERE question_code = %s
-        ) AS combined_votes
+            SELECT user_uuid
+            FROM checkbox_responses
+            WHERE question_code = %s
+        ) AS all_votes
         """,
         (question_code, question_code)
     )
