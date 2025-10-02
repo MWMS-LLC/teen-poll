@@ -271,13 +271,13 @@ def submit_vote(vote: dict):
         weight = 1.0 / n
         for opt in option_selects:
             # Always insert the vote itself
-            execute_query(
+                execute_query(
                 """
                 INSERT INTO checkbox_responses
                 (user_uuid, question_code, question_text, question_number,
                 category_id, category_name, category_text, block_number,
                 option_id, option_select, option_code, option_text,
-                vote_weight, created_at)
+                weight, created_at)
                 VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
                 """,
                 (
@@ -439,7 +439,7 @@ def get_results(question_code: str):
     # Checkbox counts (safe cast + handle empty case)
     checkbox_counts = execute_query(
         """
-        SELECT option_select, COALESCE(SUM(vote_weight),0)::float as votes
+        SELECT option_select, COALESCE(SUM(weight),0)::float as votes
         FROM checkbox_responses
         WHERE question_code = %s
         GROUP BY option_select
@@ -465,18 +465,19 @@ def get_results(question_code: str):
             "votes": votes
         })
 
-    # --- Total responses as integer (distinct users) ---
-    single_total = execute_query(
-        "SELECT COUNT(DISTINCT user_uuid) AS n FROM responses WHERE question_code = %s",
-        (question_code,)
-    )[0]["n"]
-
-    checkbox_total = execute_query(
-        "SELECT COUNT(DISTINCT user_uuid) AS n FROM checkbox_responses WHERE question_code = %s",
-        (question_code,)
-    )[0]["n"]
-
-    total = int(single_total + checkbox_total)
+    # --- Total responses as integer (distinct users across both tables) ---
+    total_result = execute_query(
+        """
+        SELECT COUNT(DISTINCT user_uuid) AS n FROM (
+            SELECT user_uuid FROM responses WHERE question_code = %s
+            UNION
+            SELECT user_uuid FROM checkbox_responses WHERE question_code = %s
+        ) AS combined_votes
+        """,
+        (question_code, question_code)
+    )
+    
+    total = int(total_result[0]["n"]) if total_result else 0
 
     return {
         "question_code": question_code,
