@@ -2,16 +2,38 @@
 # main.py (updated: unified /api/vote handler that uses responses, checkbox_responses, other_responses)
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from db import connection_pool, db_check, db_ssl_status
 from pydantic import BaseModel
 from typing import List, Optional, Union
 import logging
 from datetime import datetime, timezone
 import zlib
+import os
 
+# Set up logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Try to import db module and handle errors gracefully
+try:
+    from db import connection_pool, db_check, db_ssl_status
+    logger.info("Successfully imported db module")
+except Exception as e:
+    logger.error(f"Failed to import db module: {e}")
+    raise
+
 app = FastAPI()
+
+# Add startup event to log initialization
+@app.on_event("startup")
+async def startup_event():
+    logger.info("Starting up application...")
+    try:
+        # Test database connection
+        db_check()
+        logger.info("Database connection successful")
+    except Exception as e:
+        logger.error(f"Database connection failed: {e}")
+        raise
 
 # ------------------ CORS setup ------------------
 origins = [
