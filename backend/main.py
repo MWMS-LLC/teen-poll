@@ -455,6 +455,10 @@ def get_results(question_code: str):
         (question_code,)
     ) or []
 
+    print(f"=== RESULTS DEBUG for {question_code} ===")
+    print(f"Single counts: {single_counts}")
+    print(f"Checkbox counts: {checkbox_counts}")
+
     # --- Merge counts into one dict ---
     counts = {}
     for row in single_counts + checkbox_counts:
@@ -486,6 +490,9 @@ def get_results(question_code: str):
     )
     
     total = int(total_result[0]["n"]) if total_result else 0
+    print(f"Total result: {total_result}")
+    print(f"Calculated total: {total}")
+    print(f"Final results: {results}")
 
     return {
         "question_code": question_code,
