@@ -34,11 +34,11 @@ def import_setup_data():
         # Read and execute fresh schema
         print("📋 Setting up fresh database schema...")
         
-        ## Execute setup schema only 
-        # with open('schema_setup.sql', 'r') as f:
-        #     setup_schema = f.read()
-        # cursor.execute(setup_schema)
-        # print("✅ Setup schema created")
+        # Execute setup schema
+        with open('schema_setup.sql', 'r') as f:
+            setup_schema = f.read()
+        cursor.execute(setup_schema)
+        print("✅ Setup schema created")
 
         # Clear old data before inserting new
         cursor.execute("TRUNCATE TABLE options RESTART IDENTITY CASCADE;")
@@ -58,7 +58,7 @@ def import_setup_data():
         
         # Import categories
         print("  📁 Importing categories...")
-        with open('../data/categories.csv', 'r', encoding='utf-8-sig') as f:
+        with open('data/categories.csv', 'r', encoding='utf-8-sig') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 # Parse day_of_week array from PostgreSQL format "{0,1,2,3,4,5,6}"
@@ -86,7 +86,7 @@ def import_setup_data():
         
         # Import blocks
         print("  📁 Importing blocks...")
-        with open('../data/blocks.csv', 'r', encoding='utf-8-sig') as f:
+        with open('data/blocks.csv', 'r', encoding='utf-8-sig') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 cursor.execute("""
@@ -106,7 +106,7 @@ def import_setup_data():
         
         # Import questions
         print("  📁 Importing questions...")
-        with open('../data/questions.csv', 'r', encoding='utf-8-sig') as f:
+        with open('data/questions.csv', 'r', encoding='utf-8-sig') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 cursor.execute("""
@@ -131,7 +131,7 @@ def import_setup_data():
         
         # Import options
         print("  📁 Importing options...")
-        with open('../data/options.csv', 'r', encoding='utf-8-sig') as f:
+        with open('data/options.csv', 'r', encoding='utf-8-sig') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 cursor.execute("""

@@ -12,6 +12,11 @@ CREATE TABLE categories (
     id SERIAL PRIMARY KEY,
     category_name VARCHAR(100) NOT NULL,
     category_text TEXT,
+    day_of_week INTEGER[],
+    description TEXT,
+    category_text_long TEXT,
+    version VARCHAR(20),
+    uuid TEXT UNIQUE,
     sort_order INTEGER DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
