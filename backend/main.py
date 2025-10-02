@@ -1,6 +1,6 @@
 # main.py
 # main.py (updated: unified /api/vote handler that uses responses, checkbox_responses, other_responses)
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from backend.db import connection_pool, db_check, db_ssl_status
 from pydantic import BaseModel
@@ -210,127 +210,50 @@ def get_metadata(q_code, opt_select=None):
 # ----------------------------
 # Submit vote
 # ----------------------------
-@app.post("/api/vote")
-async def submit_vote(request: Request):
-    # Get raw request body
-    raw_body = await request.body()
-    print("=== DEBUG RAW REQUEST BODY ===")
-    print(raw_body.decode('utf-8'))
-    print("=============================")
-    
-    # Parse JSON manually to see what we actually receive
-    import json
-    vote = json.loads(raw_body.decode('utf-8'))
-    """
-    Accepts a vote payload and stores it in the appropriate table:
-      - Single-choice → responses
-      - Checkbox → checkbox_responses (with vote_weight)
-      - Other → other_responses (and placeholder in chart)
-    """
-
+@app.post("/api/vote/single")
+def submit_single_vote(vote: dict):
+    """Handle single-choice votes - stores in responses table"""
     user_uuid = vote.get("user_uuid")
     question_code = vote.get("question_code")
     option_select = vote.get("option_select")
-    option_selects = vote.get("option_selects", [])  # plural form
     other_text = vote.get("other_text")
 
- # ✅ Add this debug line right here:
-    print("=== DEBUG VOTE SUBMISSION ===")
-    print("DEBUG RAW PAYLOAD:", vote)
-    print("DEBUG option_select:", option_select)
-    print("DEBUG option_selects:", option_selects)
-    print("DEBUG other_text:", other_text)
-    print("DEBUG option_selects type:", type(option_selects))
-    print("DEBUG option_selects length:", len(option_selects) if option_selects else "None")
+    if not user_uuid or not question_code or not option_select:
+        raise HTTPException(status_code=400, detail="Missing required fields")
 
+    # Lookup question metadata
+    meta = get_metadata(question_code)
+    if not meta:
+        raise HTTPException(status_code=404, detail="Question not found")
 
-
-
+    # Normalize "Other" values
     OTHER_KEY = "OTHER"
-    def _is_other(v): 
-        return isinstance(v, str) and v.strip().upper() == OTHER_KEY
-
-    # --- Normalize "Other" values ---
-    if option_select and _is_other(option_select):
+    if option_select and isinstance(option_select, str) and option_select.strip().upper() == OTHER_KEY:
         option_select = OTHER_KEY
-
-    if option_selects:
-        option_selects = [OTHER_KEY if _is_other(v) else v for v in option_selects]
 
     if other_text:
         other_text = other_text.strip()
 
-    # --- Debug logging ---
-    print("DEBUG payload:", vote)
-    print("DEBUG option_select type:", type(option_select))
-    print("DEBUG option_select value:", option_select)
-    print("DEBUG option_selects:", option_selects)
+    # Insert single-choice vote
+    execute_query(
+        """
+        INSERT INTO responses
+        (user_uuid, question_code, question_text, question_number,
+        category_id, category_name, category_text, block_number,
+        option_id, option_select, option_code, option_text,
+        created_at)
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
+        """,
+        (
+            user_uuid, question_code, meta["question_text"], meta["question_number"],
+            meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
+            None, option_select, f"{question_code}_{option_select}", option_select
+        ),
+        fetch=False
+    )
 
-    # --- Normalize payloads ---
-    # Sometimes frontend sends checkbox list under option_select instead of option_selects
-    if isinstance(option_select, list):
-        option_selects = option_select
-        option_select = None
-
-    # Lookup question metadata
-    meta = get_metadata(question_code)
-
-    # --- Handle checkbox votes ---
-    if option_selects:
-        print("=== PROCESSING CHECKBOX VOTES ===")
-        print("DEBUG option_selects:", option_selects)
-        n = len(option_selects)
-        print("DEBUG n (length):", n)
-        if n == 0:
-            raise HTTPException(status_code=400, detail="No checkbox options provided")
-        weight = 1.0 / n
-        print("DEBUG weight:", weight)
-        for opt in option_selects:
-            print(f"DEBUG Processing option: {opt}")
-            # Always insert the vote itself
-            execute_query(
-                """
-                INSERT INTO checkbox_responses
-                (user_uuid, question_code, question_text, question_number,
-                category_id, category_name, category_text, block_number,
-                option_id, option_select, option_code, option_text,
-                weight, created_at)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
-                """,
-                (
-                    user_uuid, question_code, meta["question_text"], meta["question_number"],
-                    meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
-                    None, opt, f"{question_code}_{opt}", opt, weight
-                ),
-                fetch=False
-            )
-
-            # ✅ If "OTHER" was selected and free text exists, also store it
-            if opt == "OTHER" and other_text:
-                execute_query(
-                    """
-                    INSERT INTO other_responses
-                    (user_uuid, question_code, question_text, question_number,
-                    category_id, category_name, category_text, block_number,
-                    other_text, created_at)
-                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
-                    """,
-                    (
-                        user_uuid, question_code,
-                        meta["question_text"], meta["question_number"],
-                        meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
-                        other_text,
-                    ),
-                    fetch=False,
-                )
-
-        # ✅ Always return here
-        return {"message": "Checkbox vote(s) recorded", "question_code": question_code}
-
-
-    # --- Handle Other-text only (no option selected) ---
-    if other_text and not option_select and not option_selects:
-        # save the free text
+    # If user selected OTHER and typed free text, also store it
+    if option_select == "OTHER" and other_text:
         execute_query(
             """
             INSERT INTO other_responses
@@ -346,49 +269,61 @@ async def submit_vote(request: Request):
                 other_text,
             ),
             fetch=False,
-        )      
-        # create a bar so charts show OTHER
-        execute_query(
-            """
-            INSERT INTO responses
-            (user_uuid, question_code, question_text, question_number,
-            category_id, category_name, category_text, block_number,
-            option_id, option_select, option_code, option_text,
-            created_at)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
-            """,
-            (
-                user_uuid, question_code,
-                meta["question_text"], meta["question_number"],
-                meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
-                None, OTHER_KEY, f"{question_code}_{OTHER_KEY}", "Other",
-            ),
-            fetch=False,
         )
-        return {"message": "Other-only response recorded", "question_code": question_code}
 
+    return {"message": "Single-choice vote recorded", "question_code": question_code}
 
-    # --- Handle single-choice votes ---
-    if option_select:
+# Checkbox vote endpoint
+@app.post("/api/vote/checkbox")
+def submit_checkbox_vote(vote: dict):
+    """Handle checkbox votes - stores in checkbox_responses table with weights"""
+    user_uuid = vote.get("user_uuid")
+    question_code = vote.get("question_code")
+    option_selects = vote.get("option_selects", [])
+    other_text = vote.get("other_text")
+
+    if not user_uuid or not question_code or not option_selects:
+        raise HTTPException(status_code=400, detail="Missing required fields")
+
+    if len(option_selects) == 0:
+        raise HTTPException(status_code=400, detail="No checkbox options provided")
+
+    # Lookup question metadata
+    meta = get_metadata(question_code)
+    if not meta:
+        raise HTTPException(status_code=404, detail="Question not found")
+
+    # Normalize "Other" values
+    OTHER_KEY = "OTHER"
+    option_selects = [OTHER_KEY if isinstance(v, str) and v.strip().upper() == OTHER_KEY else v for v in option_selects]
+
+    if other_text:
+        other_text = other_text.strip()
+
+    # Calculate weight (each option gets equal weight)
+    weight = 1.0 / len(option_selects)
+
+    # Insert each selected option
+    for opt in option_selects:
         execute_query(
             """
-            INSERT INTO responses
+            INSERT INTO checkbox_responses
             (user_uuid, question_code, question_text, question_number,
             category_id, category_name, category_text, block_number,
             option_id, option_select, option_code, option_text,
-            created_at)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
+            weight, created_at)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
             """,
             (
                 user_uuid, question_code, meta["question_text"], meta["question_number"],
                 meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
-                None, option_select, f"{question_code}_{option_select}", option_select
+                None, opt, f"{question_code}_{opt}", opt, weight
             ),
             fetch=False
         )
 
-        # If user selected OTHER and typed free text, also store it
-        if option_select == "OTHER" and other_text:
+        # If "OTHER" was selected and free text exists, also store it
+        if opt == "OTHER" and other_text:
             execute_query(
                 """
                 INSERT INTO other_responses
@@ -406,13 +341,68 @@ async def submit_vote(request: Request):
                 fetch=False,
             )
 
-        # ✅ Always return here (so frontend shows text box, chart updates, no 400)
-        return {"message": "Single-choice vote recorded", "question_code": question_code}
+    return {"message": "Checkbox vote(s) recorded", "question_code": question_code}
 
+# Other text vote endpoint
+@app.post("/api/vote/other")
+def submit_other_vote(vote: dict):
+    """Handle other text votes - stores in other_responses and creates placeholder in responses"""
+    user_uuid = vote.get("user_uuid")
+    question_code = vote.get("question_code")
+    other_text = vote.get("other_text")
 
-    
-    # --- If nothing matched ---
-    raise HTTPException(status_code=400, detail="Invalid vote payload")
+    if not user_uuid or not question_code or not other_text:
+        raise HTTPException(status_code=400, detail="Missing required fields")
+
+    other_text = other_text.strip()
+    if not other_text:
+        raise HTTPException(status_code=400, detail="Other text cannot be empty")
+
+    # Lookup question metadata
+    meta = get_metadata(question_code)
+    if not meta:
+        raise HTTPException(status_code=404, detail="Question not found")
+
+    OTHER_KEY = "OTHER"
+
+    # Store the free text
+    execute_query(
+        """
+        INSERT INTO other_responses
+        (user_uuid, question_code, question_text, question_number,
+        category_id, category_name, category_text, block_number,
+        other_text, created_at)
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
+        """,
+        (
+            user_uuid, question_code,
+            meta["question_text"], meta["question_number"],
+            meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
+            other_text,
+        ),
+        fetch=False,
+    )
+
+    # Create a placeholder in responses so charts show "Other"
+    execute_query(
+        """
+        INSERT INTO responses
+        (user_uuid, question_code, question_text, question_number,
+        category_id, category_name, category_text, block_number,
+        option_id, option_select, option_code, option_text,
+        created_at)
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
+        """,
+        (
+            user_uuid, question_code,
+            meta["question_text"], meta["question_number"],
+            meta["category_id"], meta["category_name"], meta["category_text"], meta["block_number"],
+            None, OTHER_KEY, f"{question_code}_{OTHER_KEY}", "Other",
+        ),
+        fetch=False,
+    )
+
+    return {"message": "Other text response recorded", "question_code": question_code}
 
 
 
