@@ -271,7 +271,7 @@ def submit_vote(vote: dict):
         weight = 1.0 / n
         for opt in option_selects:
             # Always insert the vote itself
-                execute_query(
+            execute_query(
                 """
                 INSERT INTO checkbox_responses
                 (user_uuid, question_code, question_text, question_number,
