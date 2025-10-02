@@ -32,6 +32,20 @@ const TooOld = () => {
               <li style={styles.featureListItem}><em>Bar charts showing how other parents responded, too</em></li>
             </ul>
           </div>
+
+          <div style={styles.parentsLinkContainer}>
+            <p style={styles.parentsLinkText}>
+              <strong>Ready to start reflecting now?</strong>
+            </p>
+            <a 
+              href="https://parents.myworldmysay.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={styles.parentsLink}
+            >
+              Visit Parents Poll →
+            </a>
+          </div>
         </div>
 
         {/* For Schools Section */}
@@ -290,6 +304,34 @@ const styles = {
     textDecoration: 'none',
     fontWeight: '600',
     fontSize: '20px'
+  },
+
+  parentsLinkContainer: {
+    backgroundColor: 'rgba(78, 205, 196, 0.1)',
+    borderRadius: '15px',
+    padding: '25px',
+    border: '2px solid rgba(78, 205, 196, 0.3)',
+    textAlign: 'center',
+    marginTop: '20px'
+  },
+
+  parentsLinkText: {
+    fontSize: '18px',
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginBottom: '15px'
+  },
+
+  parentsLink: {
+    display: 'inline-block',
+    padding: '15px 30px',
+    backgroundColor: '#4ECDC4',
+    color: 'white',
+    textDecoration: 'none',
+    borderRadius: '25px',
+    fontSize: '18px',
+    fontWeight: '600',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 4px 15px rgba(78, 205, 196, 0.3)'
   }
 }
 
