@@ -24,15 +24,6 @@ const TooOld = () => {
             <p style={styles.question}>What do you wish someone had told you?</p>
             <p style={styles.question}>What do you hope your child carries forward?</p>
           </div>
-          <div style={styles.comingSoon}>
-            <p style={styles.comingSoonTitle}>Coming soon:</p>
-            <ul style={styles.featureList}>
-              <li style={styles.featureListItem}>Reflection prompts</li>
-              <li style={styles.featureListItem}>Your own private answers</li>
-              <li style={styles.featureListItem}><em>Bar charts showing how other parents responded, too</em></li>
-            </ul>
-          </div>
-
           <div style={styles.parentsLinkContainer}>
             <p style={styles.parentsLinkText}>
               <strong>Ready to start reflecting now?</strong>
