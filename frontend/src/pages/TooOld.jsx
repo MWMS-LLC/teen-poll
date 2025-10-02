@@ -18,12 +18,18 @@ const TooOld = () => {
         <div style={styles.section}>
           <h2 style={styles.sectionTitle}>For Parents</h2>
           <p style={styles.sectionText}>
-            This isn't just about understanding your teen. It's about reconnecting with your own voice.
+            Want to know how other parents feel about raising teens—just like your child does with their peers?
+            All responses are anonymous, and you'll see bar charts showing different parent perspectives.
           </p>
-          <div style={styles.questions}>
-            <p style={styles.question}>What do you wish someone had told you?</p>
-            <p style={styles.question}>What do you hope your child carries forward?</p>
-          </div>
+          <p style={styles.sectionText}>
+            You'll also be able to notice trends from teens themselves—what's on their minds, what challenges they face, and what gives them strength.
+          </p>
+          <p style={styles.sectionText}>
+            This space is designed for validation, not judgment. You'll find encouragement, and sometimes gentle advice, but never pressure.
+          </p>
+          <p style={styles.sectionText}>
+            If you'd like to get a feel for our mission, listen to the soundtrack created with teens. The songs reflect the same themes parents and teens explore here.
+          </p>
           <div style={styles.parentsLinkContainer}>
             <p style={styles.parentsLinkText}>
               <strong>Ready to start reflecting now?</strong>
@@ -43,48 +49,28 @@ const TooOld = () => {
         <div style={styles.section}>
           <h2 style={styles.sectionTitle}>For Schools</h2>
           <p style={styles.sectionText}>
-            Teen mental health is more visible than ever, but support is still uneven across school districts. A <a href="https://news.harvard.edu/gazette/story/2025/08/public-schools-a-weak-link-in-efforts-to-protect-teen-mental-health-study-suggests/" target="_blank" rel="noopener noreferrer" style={styles.link}>2025 Harvard Medical School study</a> found that only 30% of U.S. public schools screen students for mental health issues. Even fewer offer access to in-school mental health care or telehealth. Yet the need is clear: teens today are navigating stress, social media pressure, identity struggles, and more—and often feel alone in it.
+            Schools don't need to solve everything—but they can help teens listen to each other anonymously.
           </p>
           <p style={styles.sectionText}>
-            Surveys and screenings are important—but expensive. It's understandable that many schools can't do them frequently. Our platform is not a replacement for clinical care, but it offers a free emotional reflection tool that complements school efforts and gives students a safe way to express what they're feeling.
-          </p>
-
-          <h3 style={styles.sectionSubtitle}>The Power of Listening</h3>
-          <p style={styles.sectionText}>
-            Our platform was designed to be a space where teens can reflect on their feelings, make sense of tough experiences, and feel seen by others going through similar things. But making that space emotionally safe requires thoughtful input from real teens—especially on how things are worded, what tone feels safe, and what visuals feel honest.
-          </p>
-
-          <h3 style={styles.sectionSubtitle}>Student Voices Already Involved</h3>
-          <p style={styles.sectionText}>
-            Two female students from Seaforth High School (NC) have already helped shape our project by giving detailed feedback on the wording and emotional tone of reflection questions. Their insight helped us avoid adult-sounding phrases and ensure the platform feels teen-centered, not adult-scripted.
+            Our polls validate feelings, give parents insight, and remind teens they're not alone. The empathetic, uplifting soundtrack makes the experience inviting.
           </p>
           <p style={styles.sectionText}>
-            Two students from Chapel Hill High School (NC) have also shared their thoughts as male teens—emphasizing how hard it is for boys to talk about emotions, and why safe spaces matter. All four students appreciated the platform's anonymous format—it gave them space to open up and helped them feel less alone with their thoughts.
-          </p>
-
-          <h3 style={styles.sectionSubtitle}>Why Monthly School Surveys Matter</h3>
-          <p style={styles.sectionText}>
-            One of the high schools we know currently offers frequent student mental health surveys—a standout practice. This kind of consistent listening not only signals care, but can surface needs before they turn into crises. In contrast, some districts only survey students about teachers, or conduct student check-ins once or twice a year. We hope to support the kind of listening some schools are already modeling.
-          </p>
-
-          <h3 style={styles.sectionSubtitle}>How Schools Can Help</h3>
-          <p style={styles.sectionText}>
-            We would love to involve a few more students from different backgrounds. Their voices can help ensure our app resonates with a wide range of users. We are simply inviting honest feedback from those who understand what it feels like to grow up today.
+            Teens say they value this app for its honesty, the anonymity, and the comfort of knowing others feel the same way.
           </p>
           <p style={styles.sectionText}>
-            If your school is interested, please reach out. We are happy to collaborate with counselors, club advisors, or teachers to involve students in a safe and meaningful way.
+            The more students who join—from different communities—the richer the insights become.
           </p>
           
-          <div style={styles.comingSoon}>
-            <p style={styles.comingSoonTitle}>Please contact us at</p>
-            <p style={styles.contactEmail}>
-              <a href="mailto:info@MyWorldMySay.com" style={styles.emailLink}>info@MyWorldMySay.com</a>
-            </p>
+          <div style={styles.parentsLinkContainer}>
+            <a 
+              href="https://schools.myworldmysay.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={styles.parentsLink}
+            >
+              Visit Schools Page →
+            </a>
           </div>
-
-          <p style={styles.noteText}>
-            Note: This page is for school administrators, counselors, educators, and parents. Teens using the app will continue to engage anonymously and safely inside the app environment.
-          </p>
         </div>
 
         {/* For Other Grown-Ups Section */}
