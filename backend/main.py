@@ -1,6 +1,6 @@
 # main.py
 # main.py (updated: unified /api/vote handler that uses responses, checkbox_responses, other_responses)
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from backend.db import connection_pool, db_check, db_ssl_status
 from pydantic import BaseModel
@@ -211,7 +211,16 @@ def get_metadata(q_code, opt_select=None):
 # Submit vote
 # ----------------------------
 @app.post("/api/vote")
-def submit_vote(vote: dict):
+async def submit_vote(request: Request):
+    # Get raw request body
+    raw_body = await request.body()
+    print("=== DEBUG RAW REQUEST BODY ===")
+    print(raw_body.decode('utf-8'))
+    print("=============================")
+    
+    # Parse JSON manually to see what we actually receive
+    import json
+    vote = json.loads(raw_body.decode('utf-8'))
     """
     Accepts a vote payload and stores it in the appropriate table:
       - Single-choice → responses
