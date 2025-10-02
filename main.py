@@ -2,7 +2,7 @@
 # main.py (updated: unified /api/vote handler that uses responses, checkbox_responses, other_responses)
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from backend.db import connection_pool, db_check, db_ssl_status
+from db import connection_pool, db_check, db_ssl_status
 from pydantic import BaseModel
 from typing import List, Optional, Union
 import logging
