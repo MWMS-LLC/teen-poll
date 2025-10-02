@@ -72,33 +72,34 @@ export async function submitVote(questionCode, optionSelect, userUuid) {
 }
 
 /**
- * Submit checkbox vote
+ * Submit checkbox vote (uses unified /api/vote endpoint)
  * @param {string} questionCode
  * @param {Array<string>} optionSelects
  * @param {string} userUuid
+ * @param {string} otherText - optional text for "OTHER" option
  */
-export async function submitCheckboxVote(questionCode, optionSelects, userUuid) {
-  const res = await axios.post(`${API_BASE}/api/checkbox_vote`, {
+export async function submitCheckboxVote(questionCode, optionSelects, userUuid, otherText = null) {
+  const res = await axios.post(`${API_BASE}/api/vote`, {
     question_code: questionCode,
     option_selects: optionSelects,
-    user_uuid: userUuid
+    user_uuid: userUuid,
+    other_text: otherText
   });
   return res.data;
 }
 
 /**
- * Submit "OTHER" text vote
+ * Submit "OTHER" text vote (uses unified /api/vote endpoint)
  * @param {string} questionCode
- * @param {string} questionText
  * @param {string} otherText
  * @param {string} userUuid
  */
-export async function submitOtherVote(questionCode, questionText, otherText, userUuid) {
-  const res = await axios.post(`${API_BASE}/api/other`, {
+export async function submitOtherVote(questionCode, otherText, userUuid) {
+  const res = await axios.post(`${API_BASE}/api/vote`, {
     question_code: questionCode,
-    question_text: questionText,
-    other_text: otherText,
-    user_uuid: userUuid
+    option_select: 'OTHER',
+    user_uuid: userUuid,
+    other_text: otherText
   });
   return res.data;
 }

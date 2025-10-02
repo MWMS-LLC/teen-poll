@@ -329,103 +329,87 @@ const Question = ({ question, onAnswered }) => {
   }
 
   const handleCheckboxSubmit = async () => {
-    if (selectedOptions.length === 0) return
+    if (selectedOptions.length === 0) return;
 
-    // Check if voting is on cooldown from localStorage
-    const onCooldown = isVotingOnCooldown(question.question_code)
+    // 🚫 Block "Other" with no text
+    if (selectedOptions.includes("OTHER") && !otherText.trim()) {
+      alert("Please enter text for 'Other' before submitting.");
+      return;
+    }
+
+    // Cooldown gate
+    const onCooldown = isVotingOnCooldown(question.question_code);
     if (onCooldown) {
-      // Show the cooldown clock when they try to vote again
-      setVotingOnCooldown(true)
-      const remaining = getCooldownTimeRemaining(question.question_code)
-      setCooldownTimeRemaining(remaining)
-      console.log('Voting is on cooldown for question:', question.question_code)
-      return
+      setVotingOnCooldown(true);
+      const remaining = getCooldownTimeRemaining(question.question_code);
+      setCooldownTimeRemaining(remaining);
+      return;
     }
 
     try {
-      // Show loading state immediately
-      setIsSubmitting(true)
-      
-      // Get user_uuid from localStorage
-      const userUuid = localStorage.getItem('user_uuid')
-      console.log('Checkbox vote - user_uuid:', userUuid)
+      setIsSubmitting(true);
+
+      const userUuid = localStorage.getItem("user_uuid");
       if (!userUuid) {
-        console.error('No user_uuid found for checkbox vote')
-        console.log('localStorage contents:', localStorage)
-        setIsSubmitting(false)
-        return
+        setIsSubmitting(false);
+        return;
       }
 
-      // Filter out OTHER from checkbox vote since it's handled separately
-      const checkboxOptions = selectedOptions.filter(opt => opt !== 'OTHER')
-      
-      // Submit checkbox vote (only if there are non-OTHER options)
-      if (checkboxOptions.length > 0) {
-        const weight = 1 / checkboxOptions.length
-        for (const opt of checkboxOptions) {
-          await axios.post(`${API_BASE}/api/vote`, {
-            question_code: question.question_code,
-            option_select: opt,
-            user_uuid: userUuid,
-            vote_weight: weight
-          })
-        }
-      }
+      // ✅ Send ALL selected options in a single payload
+      const voteData = {
+        question_code: question.question_code,
+        option_selects: selectedOptions,                 // <-- array!
+        user_uuid: userUuid,
+        other_text: selectedOptions.includes("OTHER") ? otherText : null,
+      };
 
+      console.log('=== CHECKBOX SUBMIT ===')
+      console.log('Vote data being sent:', voteData)
+      console.log('selectedOptions:', selectedOptions)
+      console.log('question.check_box:', question.check_box)
 
-      // If OTHER is selected, submit the text separately
-      if (selectedOptions.includes('OTHER') && otherText.trim()) {
-        await axios.post(`${API_BASE}/api/vote`, {
-          question_code: question.question_code,
-          option_select: 'OTHER',
-          user_uuid: userUuid,
-          vote_weight: 1,
-          other_text: otherText
+      await axios.post(`${API_BASE}/api/vote`, voteData);
+
+      // Refresh results
+      const resultsResponse = await axios.get(
+        `${API_BASE}/api/results/${question.question_code}`
+      );
+      setResults(resultsResponse.data);
+      setShowResults(true);
+
+      // Validation messages
+      const messages = selectedOptions
+        .map((opt) => {
+          const o = question.options.find((x) => x.option_select === opt);
+          return o ? o.response_message : "";
         })
-      }
+        .filter(Boolean);
+      setValidationMessage(messages.join("\n\n"));
 
-      // Get results
-      const resultsResponse = await axios.get(`${API_BASE}/api/results/${question.question_code}`)
-      setResults(resultsResponse.data)
-      setShowResults(true)
+      // Companion advice
+      const advice = selectedOptions
+        .map((opt) => {
+          const o = question.options.find((x) => x.option_select === opt);
+          return o ? o.companion_advice : "";
+        })
+        .filter(Boolean);
+      setCompanionAdvice(advice.join("\n\n"));
+      setShowCompanion(false);
 
-      // Set validation messages for all selected options
-      const messages = selectedOptions.map(opt => {
-        const option = options.find(o => o.option_select === opt)
-        return option ? option.response_message : ''
-      }).filter(msg => msg)
-      
-      setValidationMessage(messages.join('\n\n'))
-      
-      // Set companion advice for all selected options
-      const advice = selectedOptions.map(opt => {
-        const option = options.find(o => o.option_select === opt)
-        return option ? option.companion_advice : ''
-      }).filter(adv => adv)
-      
-      setCompanionAdvice(advice.join('\n\n'))
-      setShowCompanion(false)
-      
-      // Clear the form
-      setSelectedOptions([])
-      setOtherText('')
+      // Clear state + start cooldown
+      setSelectedOptions([]);
+      setOtherText("");
+      setVotingCooldown(question.question_code);
 
-      // Set voting cooldown for this question (but don't show clock yet)
-      setVotingCooldown(question.question_code)
-      // Don't set votingOnCooldown to true here - only show clock when they try to vote again
-
-      // Notify parent component that question was answered
-      if (onAnswered) {
-        onAnswered(question)
-      }
+      if (onAnswered) onAnswered(question);
     } catch (err) {
-      console.error('Error submitting checkbox vote:', err)
-      setError({ message: 'An error occurred while voting.' })
+      console.error("Error submitting checkbox vote:", err);
+      setError({ message: "An error occurred while voting." });
     } finally {
-      // Always hide loading state
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
+
 
   const handleOtherSubmit = async () => {
     if (!otherText.trim()) return
@@ -478,7 +462,11 @@ const Question = ({ question, onAnswered }) => {
   }
 
   const handleOptionChange = (optionSelect, checked) => {
+    console.log(`=== CHECKBOX OPTION CHANGE ===`)
     console.log(`Option change: ${optionSelect}, checked: ${checked}`)
+    console.log(`Question check_box: ${question.check_box}`)
+    console.log(`Current selectedOptions:`, selectedOptions)
+    
     if (checked) {
       setSelectedOptions(prev => {
         const newOptions = [...prev, optionSelect]
