@@ -26,6 +26,7 @@ try:
         minconn=1,
         maxconn=10,
         dsn=DATABASE_URL,
+        options="-c client_encoding=utf8"
     )
 except Exception as e:
     logger.error(f"Error creating connection pool: {e}")
