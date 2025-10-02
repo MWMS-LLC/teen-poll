@@ -226,10 +226,13 @@ def submit_vote(vote: dict):
     other_text = vote.get("other_text")
 
  # ✅ Add this debug line right here:
+    print("=== DEBUG VOTE SUBMISSION ===")
     print("DEBUG RAW PAYLOAD:", vote)
     print("DEBUG option_select:", option_select)
     print("DEBUG option_selects:", option_selects)
     print("DEBUG other_text:", other_text)
+    print("DEBUG option_selects type:", type(option_selects))
+    print("DEBUG option_selects length:", len(option_selects) if option_selects else "None")
 
 
 
@@ -265,11 +268,16 @@ def submit_vote(vote: dict):
 
     # --- Handle checkbox votes ---
     if option_selects:
+        print("=== PROCESSING CHECKBOX VOTES ===")
+        print("DEBUG option_selects:", option_selects)
         n = len(option_selects)
+        print("DEBUG n (length):", n)
         if n == 0:
             raise HTTPException(status_code=400, detail="No checkbox options provided")
         weight = 1.0 / n
+        print("DEBUG weight:", weight)
         for opt in option_selects:
+            print(f"DEBUG Processing option: {opt}")
             # Always insert the vote itself
             execute_query(
                 """
