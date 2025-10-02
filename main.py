@@ -213,30 +213,18 @@ def get_metadata(q_code, opt_select=None):
 @app.post("/api/vote/single")
 def submit_single_vote(vote: dict):
     """Handle single-choice votes - stores in responses table"""
-    try:
-        print("=== SINGLE VOTE DEBUG ===")
-        print("Received vote:", vote)
-        
-        user_uuid = vote.get("user_uuid")
-        question_code = vote.get("question_code")
-        option_select = vote.get("option_select")
-        other_text = vote.get("other_text")
+    user_uuid = vote.get("user_uuid")
+    question_code = vote.get("question_code")
+    option_select = vote.get("option_select")
+    other_text = vote.get("other_text")
 
-        if not user_uuid or not question_code or not option_select:
-            print("Missing required fields")
-            raise HTTPException(status_code=400, detail="Missing required fields")
+    if not user_uuid or not question_code or not option_select:
+        raise HTTPException(status_code=400, detail="Missing required fields")
 
-        # Lookup question metadata
-        print("Looking up metadata for:", question_code)
-        meta = get_metadata(question_code)
-        print("Metadata result:", meta)
-        
-        if not meta:
-            print("Question not found")
-            raise HTTPException(status_code=404, detail="Question not found")
-    except Exception as e:
-        print(f"Error in single vote processing: {e}")
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+    # Lookup question metadata
+    meta = get_metadata(question_code)
+    if not meta:
+        raise HTTPException(status_code=404, detail="Question not found")
 
     # Normalize "Other" values
     OTHER_KEY = "OTHER"
@@ -466,9 +454,6 @@ def get_results(question_code: str):
         (question_code,)
     ) or []
 
-    print(f"=== RESULTS DEBUG for {question_code} ===")
-    print(f"Single counts: {single_counts}")
-    print(f"Checkbox counts: {checkbox_counts}")
 
     # --- Merge counts into one dict ---
     counts = {}
@@ -501,9 +486,6 @@ def get_results(question_code: str):
     )
     
     total = int(total_result[0]["n"]) if total_result else 0
-    print(f"Total result: {total_result}")
-    print(f"Calculated total: {total}")
-    print(f"Final results: {results}")
 
     return {
         "question_code": question_code,

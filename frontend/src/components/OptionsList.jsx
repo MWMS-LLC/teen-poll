@@ -35,15 +35,33 @@ const OptionsList = ({
     }
   }
 
+  // --- Handle click on "Other" ---
   const handleOtherClick = () => {
-    onOtherClick()
+    // show input box (local state or parent prop)
+    if (onOtherClick) {
+      onOtherClick("OTHER");   // force stable select
+    }
   }
+
+  // --- Handle submit of "Other" text ---
+  const handleOtherSubmit = () => {
+    // 🚫 Block submitting if no text entered
+    if (!otherText.trim()) {
+      alert("Please enter text for 'Other' before submitting.")
+      return
+    }
+
+    onOtherSubmit("OTHER", otherText.trim())
+    setOtherText("")
+  }
+
+
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
       {options.map((option, index) => {
         // Safety check for option data
-        if (!option || !option.option_select || !option.option_text) {
+        if (!option || !option.option_select) {
           console.error('Invalid option data:', option)
           return (
             <div key={`invalid-${index}`} style={{ 
@@ -152,12 +170,7 @@ const OptionsList = ({
                   />
                   {!isCheckbox && (
                     <button
-                      onClick={() => {
-                        if (otherText.trim()) {
-                          // Submit OTHER response for radio questions
-                          onOtherSubmit()
-                        }
-                      }}
+                      onClick={handleOtherSubmit}
                       style={{
                         marginTop: '10px',
                         padding: '8px 16px',
@@ -171,6 +184,7 @@ const OptionsList = ({
                       Submit
                     </button>
                   )}
+
                 </div>
               ) : null}
             </div>

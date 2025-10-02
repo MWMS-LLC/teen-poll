@@ -43,11 +43,7 @@ CREATE TABLE responses (
     block_number INTEGER,
     
     -- Metadata
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
-    -- Optional reference to setup tables (can break without data loss)
-    setup_question_code VARCHAR(50),
-    setup_option_id INTEGER
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create checkbox_responses table for multi-select votes
@@ -80,12 +76,8 @@ CREATE TABLE checkbox_responses (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     weight REAL DEFAULT 1.0,
     
-    -- Optional reference to setup tables (can break without data loss)
-    setup_question_code VARCHAR(50),
-    setup_option_id INTEGER,
-    
     -- Prevent duplicate responses
-    UNIQUE(user_uuid, question_code, option_select, created_at)
+    UNIQUE(user_uuid, question_code, option_select)
 );
 
 -- Create other_responses table for free-text responses
@@ -112,10 +104,7 @@ CREATE TABLE other_responses (
     other_text TEXT NOT NULL,
     
     -- Metadata
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
-    -- Optional reference to setup tables (can break without data loss)
-    setup_question_code VARCHAR(50)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP   
 );
 
 -- Create indexes for better performance

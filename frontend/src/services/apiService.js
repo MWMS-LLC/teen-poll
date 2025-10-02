@@ -61,25 +61,27 @@ export async function createUser(userUuid, birthYear) {
  * @param {string} questionCode
  * @param {string} optionSelect
  * @param {string} userUuid
+ * @param {string} otherText - optional text for "OTHER" option
  */
-export async function submitVote(questionCode, optionSelect, userUuid) {
-  const res = await axios.post(`${API_BASE}/api/vote`, {
+export async function submitVote(questionCode, optionSelect, userUuid, otherText = null) {
+  const res = await axios.post(`${API_BASE}/api/vote/single`, {
     question_code: questionCode,
     option_select: optionSelect,
-    user_uuid: userUuid
+    user_uuid: userUuid,
+    other_text: otherText
   });
   return res.data;
 }
 
 /**
- * Submit checkbox vote (uses unified /api/vote endpoint)
+ * Submit checkbox vote
  * @param {string} questionCode
  * @param {Array<string>} optionSelects
  * @param {string} userUuid
  * @param {string} otherText - optional text for "OTHER" option
  */
 export async function submitCheckboxVote(questionCode, optionSelects, userUuid, otherText = null) {
-  const res = await axios.post(`${API_BASE}/api/vote`, {
+  const res = await axios.post(`${API_BASE}/api/vote/checkbox`, {
     question_code: questionCode,
     option_selects: optionSelects,
     user_uuid: userUuid,
@@ -89,17 +91,16 @@ export async function submitCheckboxVote(questionCode, optionSelects, userUuid, 
 }
 
 /**
- * Submit "OTHER" text vote (uses unified /api/vote endpoint)
+ * Submit "OTHER" text vote
  * @param {string} questionCode
  * @param {string} otherText
  * @param {string} userUuid
  */
 export async function submitOtherVote(questionCode, otherText, userUuid) {
-  const res = await axios.post(`${API_BASE}/api/vote`, {
+  const res = await axios.post(`${API_BASE}/api/vote/other`, {
     question_code: questionCode,
-    option_select: 'OTHER',
-    user_uuid: userUuid,
-    other_text: otherText
+    other_text: otherText,
+    user_uuid: userUuid
   });
   return res.data;
 }

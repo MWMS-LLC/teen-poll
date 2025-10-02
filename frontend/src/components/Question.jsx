@@ -4,6 +4,7 @@ import axios from 'axios'
 import OptionsList from './OptionsList.jsx'
 import ValidationBox from './ValidationBox.jsx'
 import ResultsBarChart from './ResultsBarChart.jsx'
+import { submitVote, submitCheckboxVote, submitOtherVote } from '../services/apiService.js'
 const API_BASE = import.meta.env.VITE_API_BASE;
 
 const Question = ({ question, onAnswered }) => {
@@ -297,8 +298,8 @@ const Question = ({ question, onAnswered }) => {
       }
       console.log('Submitting vote data:', voteData)
 
-      // Submit vote
-      await axios.post(`${API_BASE}/api/vote`, voteData)
+      // Submit vote using API service
+      await submitVote(question.question_code, optionSelect, userUuid)
 
       // Get results
       const resultsResponse = await axios.get(`${API_BASE}/api/results/${question.question_code}`)
@@ -355,20 +356,17 @@ const Question = ({ question, onAnswered }) => {
         return;
       }
 
-      // ✅ Send ALL selected options in a single payload
-      const voteData = {
-        question_code: question.question_code,
-        option_selects: selectedOptions,                 // <-- array!
-        user_uuid: userUuid,
-        other_text: selectedOptions.includes("OTHER") ? otherText : null,
-      };
-
       console.log('=== CHECKBOX SUBMIT ===')
-      console.log('Vote data being sent:', voteData)
       console.log('selectedOptions:', selectedOptions)
       console.log('question.check_box:', question.check_box)
 
-      await axios.post(`${API_BASE}/api/vote`, voteData);
+      // Submit checkbox vote using API service
+      await submitCheckboxVote(
+        question.question_code, 
+        selectedOptions, 
+        userUuid, 
+        selectedOptions.includes("OTHER") ? otherText : null
+      );
 
       // Refresh results
       const resultsResponse = await axios.get(
@@ -380,7 +378,7 @@ const Question = ({ question, onAnswered }) => {
       // Validation messages
       const messages = selectedOptions
         .map((opt) => {
-          const o = question.options.find((x) => x.option_select === opt);
+          const o = options.find((x) => x.option_select === opt);
           return o ? o.response_message : "";
         })
         .filter(Boolean);
@@ -389,7 +387,7 @@ const Question = ({ question, onAnswered }) => {
       // Companion advice
       const advice = selectedOptions
         .map((opt) => {
-          const o = question.options.find((x) => x.option_select === opt);
+          const o = options.find((x) => x.option_select === opt);
           return o ? o.companion_advice : "";
         })
         .filter(Boolean);
@@ -426,13 +424,7 @@ const Question = ({ question, onAnswered }) => {
         return
       }
 
-      await axios.post(`${API_BASE}/api/vote`, {
-          question_code: question.question_code,
-          option_select: 'OTHER',
-          user_uuid: userUuid,
-          vote_weight: 1,
-          other_text: otherText
-        })
+      await submitOtherVote(question.question_code, otherText, userUuid)
 
       // Get results after submitting
       const resultsResponse = await axios.get(`${API_BASE}/api/results/${question.question_code}`)

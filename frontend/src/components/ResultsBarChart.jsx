@@ -35,11 +35,11 @@ const ResultsBarChart = ({ results, questionText, options = [] }) => {
     )
   }
 
-  // Calculate total responses and percentages with safety checks
-  const totalResponses = results.results.reduce((sum, item) => {
-    const count = parseFloat(item.count) || 0
+  // Use total_responses from backend, fallback to calculating from votes
+  const totalResponses = results.total_responses || results.results.reduce((sum, item) => {
+    const count = parseFloat(item.votes) || 0
     if (isNaN(count) || count < 0) {
-      console.warn('Invalid count value:', item.count, 'for option:', item.option_select)
+      console.warn('Invalid votes value:', item.votes, 'for option:', item.option_select)
       return sum
     }
     return sum + count
@@ -47,10 +47,10 @@ const ResultsBarChart = ({ results, questionText, options = [] }) => {
   
   // Transform data for progress bars with safety checks
   const chartData = results.results.map(item => {
-    const count = parseFloat(item.count) || 0
+    const count = parseFloat(item.votes) || 0
     
     if (isNaN(count) || count < 0) {
-      console.warn('Skipping invalid count:', item.count, 'for option:', item.option_select)
+      console.warn('Skipping invalid votes:', item.votes, 'for option:', item.option_select)
       return null
     }
     
