@@ -1,6 +1,7 @@
 # main.py
 # main.py (updated: unified /api/vote handler that uses responses, checkbox_responses, other_responses)
 from fastapi import FastAPI, HTTPException
+from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional, Union
@@ -21,8 +22,9 @@ except Exception as e:
     logger.error(f"Failed to import db module: {e}")
     raise
 
-
-
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
     logger.info("Starting up application...")
     try:
         # Test database connection
@@ -31,6 +33,13 @@ except Exception as e:
     except Exception as e:
         logger.error(f"Database connection failed: {e}")
         raise
+    
+    yield
+    
+    # Shutdown
+    logger.info("Shutting down application...")
+
+app = FastAPI(lifespan=lifespan)
 
 # ------------------ CORS setup ------------------
 origins = [
