@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS options CASCADE;
 DROP TABLE IF EXISTS questions CASCADE;
 DROP TABLE IF EXISTS blocks CASCADE;
 DROP TABLE IF EXISTS categories CASCADE;
+DROP TABLE IF EXISTS soundtracks CASCADE;
 
 -- Create categories table (matches your CSV exactly)
 CREATE TABLE categories (

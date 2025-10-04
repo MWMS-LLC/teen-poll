@@ -38,19 +38,38 @@ export const AudioProvider = ({ children }) => {
     }
     setThemeSong(defaultThemeSong)
     
-    // Check if theme song was already played this session
-    const alreadyPlayed = localStorage.getItem('themeSongPlayed') === 'true'
-    setHasAutoPlayed(alreadyPlayed)
+    // Test if the fallback audio file exists and is accessible
+    const testAudio = new Audio('/My World My Say Theme.mp3')
+    testAudio.addEventListener('canplay', () => {
+      console.log('✅ Fallback audio file is accessible and playable')
+    })
+    testAudio.addEventListener('error', (e) => {
+      console.error('❌ Fallback audio file error:', e)
+    })
+    testAudio.load()
     
-    console.log('🎵 Theme song system initialized', alreadyPlayed ? '(already played this session)' : '(ready to play)')
+    // Check if theme song was already played today (daily reset)
+    const today = new Date().toDateString()
+    const lastPlayedDate = localStorage.getItem('themeSongLastPlayedDate')
+    const alreadyPlayedToday = lastPlayedDate === today
+    
+    setHasAutoPlayed(alreadyPlayedToday)
+    
+    console.log('🎵 Theme song system initialized', alreadyPlayedToday ? '(already played today)' : '(ready to play)')
+    console.log('🎵 Theme song URL:', defaultThemeSong.fileUrl)
+    
+    // Test if audio element is ready
+    setTimeout(() => {
+      if (themeAudioRef.current) {
+        console.log('🎵 Audio element ready:', themeAudioRef.current)
+      } else {
+        console.log('❌ Audio element not ready')
+      }
+    }, 100)
   }, [])
 
-  // Clear theme song state when component unmounts (new session)
-  useEffect(() => {
-    return () => {
-      localStorage.removeItem('themeSongPlayed')
-    }
-  }, [])
+  // Note: We don't clear localStorage on unmount to persist across navigation
+  // The theme song state will be reset when the page is refreshed or a new session truly starts
 
   // Auto-play theme song once after user interaction
   useEffect(() => {
@@ -59,35 +78,107 @@ export const AudioProvider = ({ children }) => {
     }
   }, [isThemeSongOn, themeSong, hasAutoPlayed])
 
-  // Function to trigger theme song after user interaction (only once per session)
+  // Function to trigger theme song after user interaction (only once per day)
   const triggerThemeSong = useCallback(() => {
+    console.log('🎵 triggerThemeSong called:', { isThemeSongOn, themeSong: !!themeSong, hasAutoPlayed })
     if (isThemeSongOn && themeSong && !hasAutoPlayed) {
       console.log('🎵 Triggering theme song after user interaction')
       playThemeSong()
       setHasAutoPlayed(true)
-      // Store in localStorage so it persists across navigation
-      localStorage.setItem('themeSongPlayed', 'true')
+      // Store today's date so it only plays once per day
+      const today = new Date().toDateString()
+      localStorage.setItem('themeSongLastPlayedDate', today)
+    } else {
+      console.log('🎵 Theme song not triggered:', { 
+        isThemeSongOn, 
+        hasThemeSong: !!themeSong, 
+        hasAutoPlayed,
+        reason: !isThemeSongOn ? 'theme song off' : !themeSong ? 'no theme song' : 'already played today'
+      })
     }
   }, [isThemeSongOn, themeSong, hasAutoPlayed])
 
   const playThemeSong = () => {
-    if (!themeAudioRef.current || !themeSong) return
+    if (!themeAudioRef.current || !themeSong) {
+      console.log('❌ Theme song not ready:', { audioRef: !!themeAudioRef.current, themeSong: !!themeSong })
+      return
+    }
     
-    console.log('🎵 Playing theme song')
-    themeAudioRef.current.src = themeSong.fileUrl
-    themeAudioRef.current.load()
-    themeAudioRef.current.play().then(() => {
-      console.log('🎵 Theme song playing successfully')
-    }).catch(error => {
-      console.error('❌ Theme song error:', error)
+    console.log('🎵 Playing theme song:', themeSong.fileUrl)
+    console.log('🎵 Browser info:', {
+      userAgent: navigator.userAgent,
+      isIncognito: window.navigator.incognito || false,
+      autoplayPolicy: 'unknown'
     })
+    
+    // Try the fallback URL first since S3 might have issues
+    const fallbackUrl = '/My World My Say Theme.mp3'
+    const primaryUrl = themeSong.fileUrl
+    
+    console.log('🎵 Trying fallback URL first:', fallbackUrl)
+    themeAudioRef.current.src = fallbackUrl
+    themeAudioRef.current.load()
+    
+    // Add event listeners for debugging
+    themeAudioRef.current.addEventListener('loadstart', () => console.log('🎵 Audio load started'))
+    themeAudioRef.current.addEventListener('canplay', () => console.log('🎵 Audio can play'))
+    themeAudioRef.current.addEventListener('canplaythrough', () => console.log('🎵 Audio can play through'))
+    themeAudioRef.current.addEventListener('error', (e) => {
+      console.error('❌ Audio error:', e)
+      console.error('❌ Error details:', {
+        error: e,
+        src: themeAudioRef.current.src,
+        networkState: themeAudioRef.current.networkState,
+        readyState: themeAudioRef.current.readyState
+      })
+    })
+    themeAudioRef.current.addEventListener('abort', () => console.log('🎵 Audio aborted'))
+    themeAudioRef.current.addEventListener('stalled', () => console.log('🎵 Audio stalled'))
+    
+    // Try to play with a small delay to ensure user interaction is recognized
+    setTimeout(() => {
+      themeAudioRef.current.play().then(() => {
+        console.log('🎵 Fallback theme song playing successfully')
+        console.log('🎵 Audio state after play:', {
+          paused: themeAudioRef.current.paused,
+          currentTime: themeAudioRef.current.currentTime,
+          duration: themeAudioRef.current.duration,
+          readyState: themeAudioRef.current.readyState
+        })
+      }).catch(error => {
+        console.error('❌ Fallback theme song play error:', error)
+        console.error('❌ Error details:', {
+          name: error.name,
+          message: error.message,
+          code: error.code
+        })
+        // Try with the primary S3 URL as last resort
+        console.log('🎵 Trying primary S3 URL as last resort...')
+        themeAudioRef.current.src = primaryUrl
+        themeAudioRef.current.load()
+        themeAudioRef.current.play().then(() => {
+          console.log('🎵 Primary theme song playing successfully')
+        }).catch(primaryError => {
+          console.error('❌ Primary theme song also failed:', primaryError)
+          console.error('❌ Primary error details:', {
+            name: primaryError.name,
+            message: primaryError.message,
+            code: primaryError.code
+          })
+          console.log('🎵 All theme song sources failed - audio may not be available')
+        })
+      })
+    }, 100) // Small delay to ensure user interaction is recognized
   }
 
   const stopThemeSong = () => {
     if (themeAudioRef.current) {
+      const wasPlaying = !themeAudioRef.current.paused
       themeAudioRef.current.pause()
       themeAudioRef.current.currentTime = 0
-      console.log('🎵 Theme song stopped')
+      console.log('🎵 Theme song stopped', wasPlaying ? '(was playing)' : '(was already stopped)')
+    } else {
+      console.log('❌ Cannot stop theme song - audio element not ready')
     }
   }
 
@@ -96,13 +187,17 @@ export const AudioProvider = ({ children }) => {
       const newState = !prev
       if (newState) {
         console.log('🎵 Theme song turned ON')
-        // If turning on and it was already played, allow it to play again
-        if (hasAutoPlayed) {
-          playThemeSong()
-        }
+        // Always play when turning on (manual trigger)
+        playThemeSong()
       } else {
-        console.log('🎵 Theme song turned OFF')
+        console.log('🎵 Theme song turned OFF - stopping any playing audio')
         stopThemeSong()
+        // Also try to stop any audio that might be playing
+        if (themeAudioRef.current) {
+          themeAudioRef.current.pause()
+          themeAudioRef.current.currentTime = 0
+          console.log('🎵 Audio element stopped and reset')
+        }
       }
       return newState
     })
@@ -111,9 +206,11 @@ export const AudioProvider = ({ children }) => {
   // Function to reset theme song state (allow it to play again)
   const resetThemeSong = () => {
     setHasAutoPlayed(false)
-    localStorage.removeItem('themeSongPlayed')
+    localStorage.removeItem('themeSongLastPlayedDate')
     console.log('🎵 Theme song state reset - can play again')
+    console.log('🎵 Current state:', { isThemeSongOn, hasAutoPlayed: false, themeSong: !!themeSong })
   }
+
 
   // ===== SOUNDTRACK FUNCTIONS (Never touch theme song) =====
 

@@ -79,7 +79,7 @@ const HamburgerMenu = () => {
             style={styles.menuItem} 
             onClick={() => handleNavigate('/faq')}
           >
-            FAQ/About
+            About/FAQ
           </button>
           <button 
             style={styles.menuItem} 
@@ -104,6 +104,7 @@ const HamburgerMenu = () => {
               }}></div>
             </label>
           </div>
+
 
         </div>
       )}
@@ -161,7 +162,7 @@ const styles = {
     padding: '12px 16px',
     borderRadius: '12px',
     background: 'transparent',
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: 'white',
     border: 'none',
     cursor: 'pointer',
     fontSize: '16px',
@@ -178,7 +179,7 @@ const styles = {
     textAlign: 'left',
     padding: '12px 16px',
     borderRadius: '12px',
-    background: '#FF8C42', // Warm orange
+    background: '#FF8C00',
     color: 'white',
     border: 'none',
     cursor: 'pointer',
@@ -186,49 +187,84 @@ const styles = {
     fontWeight: '600',
     transition: 'all 0.2s ease',
     fontFamily: 'inherit',
-    boxShadow: '0 4px 12px rgba(255, 140, 66, 0.3)',
+    boxShadow: '0 2px 8px rgba(255, 140, 0, 0.3)',
     ':hover': {
-      background: '#FF7A2E',
-      transform: 'translateY(-1px)',
-      boxShadow: '0 6px 16px rgba(255, 140, 66, 0.4)'
+      background: '#FF7F00',
+      color: 'white',
+      boxShadow: '0 4px 12px rgba(255, 140, 0, 0.4)'
     }
   },
-  
+
   toggleContainer: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: '8px 16px',
-    marginTop: '8px',
-    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-    paddingTop: '16px'
+    padding: '12px 16px',
+    marginTop: '10px',
+    borderTop: '1px solid rgba(255, 255, 255, 0.1)'
   },
-  
+
   toggleLabel: {
-    fontSize: '14px',
+    color: 'white',
+    fontSize: '16px',
     fontWeight: '500'
   },
-  
+
   toggleSwitch: {
     position: 'relative',
-    display: 'inline-flex',
-    alignItems: 'center',
-    cursor: 'pointer'
+    display: 'inline-block',
+    width: '50px',
+    height: '24px'
   },
-  
+
   toggleInput: {
-    position: 'absolute',
     opacity: 0,
     width: 0,
     height: 0
   },
-  
+
   toggleSlider: {
-    width: '32px',
-    height: '20px',
-    borderRadius: '10px',
+    position: 'absolute',
+    cursor: 'pointer',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: '24px',
+    transition: '0.3s',
+    '&:before': {
+      position: 'absolute',
+      content: '""',
+      height: '18px',
+      width: '18px',
+      left: '3px',
+      bottom: '3px',
+      backgroundColor: 'white',
+      borderRadius: '50%',
+      transition: '0.3s'
+    }
+  },
+
+  debugContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+    padding: '12px 16px',
+    marginTop: '10px',
+    borderTop: '1px solid rgba(255, 255, 255, 0.1)'
+  },
+
+  debugButton: {
+    padding: '8px 12px',
+    backgroundColor: 'rgba(78, 205, 196, 0.2)',
+    color: 'rgba(255, 255, 255, 0.9)',
+    border: '1px solid rgba(78, 205, 196, 0.3)',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: '500',
     transition: 'all 0.2s ease',
-    position: 'relative'
+    fontFamily: 'inherit'
   }
 }
 

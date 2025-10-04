@@ -150,7 +150,8 @@ const Landing = () => {
       const existingYearOfBirth = localStorage.getItem('year_of_birth')
       
       if (existingUserUuid && existingYearOfBirth) {
-        // User exists - navigate directly to category
+        // User exists - trigger theme song and navigate directly to category
+        triggerThemeSong()
         navigate(`/category/${category.id}`)
       } else {
         // New user - show age dropdown
@@ -165,7 +166,8 @@ const Landing = () => {
     const handleAgeSubmit = async () => {
     if (!selectedAge) return
     
-    // Trigger theme song after user interaction
+    // Trigger theme song immediately after user interaction (before any async operations)
+    console.log('🎵 User clicked Continue - triggering theme song immediately')
     triggerThemeSong()
     
     let birthYear

@@ -102,9 +102,6 @@ const Category = () => {
           ← Back to Categories
         </div>
         <h1 style={styles.pageTitle}>Choose a Block</h1>
-        <div style={styles.pageSubtitle}>
-          Pick the topic that speaks to you right now
-        </div>
       </div>
 
       {/* Blocks Grid */}

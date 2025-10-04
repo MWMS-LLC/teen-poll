@@ -23,7 +23,7 @@ const FAQ = () => {
     },
     {
       question: "What kind of questions are there?",
-      answer: "We cover topics like friendships, relationships, school, family, emotions, and identity. The questions are designed to help teens explore their thoughts and feelings in a safe, supportive environment."
+      answer: "We cover topics like friendships, relationships, school, family, emotions, future, and identity. The questions are designed to help teens explore their thoughts and feelings in a safe, supportive environment."
     },
     {
       question: "Who can use this app?",
@@ -35,7 +35,7 @@ const FAQ = () => {
     },
     {
       question: "Can I change my answers?",
-      answer: "Currently, answers are final once submitted. This helps maintain the integrity of the data and ensures everyone gets honest insights from the community."
+      answer: "Yes, but you have to wait after a cooldown period."
     },
     {
       question: "What if I see something concerning?",
@@ -57,11 +57,28 @@ const FAQ = () => {
         <div style={styles.backButton} onClick={() => navigate('/')}>
           ← Back to Home
         </div>
-        <h1 style={styles.pageTitle}>FAQ & About</h1>
-        <div style={styles.pageSubtitle}>
-          Everything you need to know about My World My Say
-        </div>
+        
       </div>
+
+      {/* About Section */}
+      <div style={styles.aboutSection}>
+        <h2 style={styles.aboutTitle}>About My World My Say</h2>
+
+        <p style={{ ...styles.aboutText, textAlign: "left" }}>
+          This app grew out of real conversations—between parents, psychologists, and teens themselves. 
+          The thoughts are true. The emotions are shared.
+        </p>
+
+        <p style={{ ...styles.aboutText, textAlign: "left" }}>
+          Most surveys ask teens what they think, but never show them the results.  
+          <strong> My World My Say</strong> changes that—giving teens a voice <em>and</em> the big picture.
+        </p>
+
+        <p style={{ ...styles.aboutText, textAlign: "left" }}>
+          And the songs? Empathetic, yes, but also uplifting—reminding us we’re not only here to feel, but to build.
+        </p>
+      </div>
+      <div style={{ height: "1rem" }}></div>
 
       {/* FAQ Section */}
       <div style={styles.faqContainer}>
@@ -88,21 +105,7 @@ const FAQ = () => {
           </div>
         ))}
       </div>
-
-      {/* About Section */}
-      <div style={styles.aboutSection}>
-        <h2 style={styles.aboutTitle}>About My World My Say</h2>
-        <p style={styles.aboutText}>
-          This app grew out of real conversations—between parents, psychologists, and teens themselves. The thoughts are true. The emotions are shared.
-        </p>
-        <p style={styles.aboutText}>
-          Most surveys ask teens what they think, but never show them the results. <strong>My World My Say</strong> changes that—giving teens a voice <em>and</em> the big picture.
-        </p>
-        <p style={styles.aboutText}>
-          And the songs? They don't just echo pain. They lift it, shape it, and give it direction. Because we're not here to just feel—we're here to build.
-        </p>
-      </div>
-      
+    
       {/* Footer */}
       <Footer />
     </div>

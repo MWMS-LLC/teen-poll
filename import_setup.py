@@ -29,16 +29,16 @@ def import_setup_data():
         conn = psycopg2.connect(DATABASE_URL)
         cursor = conn.cursor()
         
-        print("✅ Connected to PostgreSQL database")
+        print("SUCCESS: Connected to PostgreSQL database")
         
         # Read and execute fresh schema
-        print("📋 Setting up fresh database schema...")
+        print("Setting up fresh database schema...")
         
         # Execute setup schema
         with open('schema_setup.sql', 'r') as f:
             setup_schema = f.read()
         cursor.execute(setup_schema)
-        print("✅ Setup schema created")
+        print("SUCCESS: Setup schema created")
 
         # Clear old data before inserting new
         cursor.execute("TRUNCATE TABLE options RESTART IDENTITY CASCADE;")
@@ -46,7 +46,7 @@ def import_setup_data():
         cursor.execute("TRUNCATE TABLE blocks RESTART IDENTITY CASCADE;")
         cursor.execute("TRUNCATE TABLE categories RESTART IDENTITY CASCADE;")
         conn.commit()
-        print("✅ Existing setup data truncated")
+        print("SUCCESS: Existing setup data truncated")
 
         
         # Final commit after truncation
@@ -54,10 +54,10 @@ def import_setup_data():
 
         
         # Import CSV data
-        print("📊 Importing CSV data...")
+        print("Importing CSV data...")
         
         # Import categories
-        print("  📁 Importing categories...")
+        print("  Importing categories...")
         with open('data/categories.csv', 'r', encoding='utf-8-sig') as f:
             reader = csv.DictReader(f)
             for row in reader:
@@ -82,10 +82,10 @@ def import_setup_data():
                     int(row.get('sort_order', 0)),
                     datetime.now()
                 ))
-        print(f"    ✅ Categories imported")
+        print(f"    SUCCESS: Categories imported")
         
         # Import blocks
-        print("  📁 Importing blocks...")
+        print("  Importing blocks...")
         with open('data/blocks.csv', 'r', encoding='utf-8-sig') as f:
             reader = csv.DictReader(f)
             for row in reader:
@@ -102,10 +102,10 @@ def import_setup_data():
                     clean_csv_value(row.get('category_name', '')),
                     datetime.now()
                 ))
-        print(f"    ✅ Blocks imported")
+        print(f"    SUCCESS: Blocks imported")
         
         # Import questions
-        print("  📁 Importing questions...")
+        print("  Importing questions...")
         with open('data/questions.csv', 'r', encoding='utf-8-sig') as f:
             reader = csv.DictReader(f)
             for row in reader:
@@ -127,10 +127,10 @@ def import_setup_data():
                     clean_csv_value(row.get('version', '')),
                     datetime.now()
                 ))
-        print(f"    ✅ Questions imported")
+        print(f"    SUCCESS: Questions imported")
         
         # Import options
-        print("  📁 Importing options...")
+        print("  Importing options...")
         with open('data/options.csv', 'r', encoding='utf-8-sig') as f:
             reader = csv.DictReader(f)
             for row in reader:
@@ -155,11 +155,11 @@ def import_setup_data():
                     clean_csv_value(row.get('version', '')),
                     datetime.now()
                 ))
-        print(f"    ✅ Options imported")
+        print(f"    SUCCESS: Options imported")
         
         # Commit all data
         conn.commit()
-        print("✅ All data imported successfully!")
+        print("SUCCESS: All data imported successfully!")
         
         # Show summary
         cursor.execute("SELECT COUNT(*) FROM categories")
@@ -174,19 +174,19 @@ def import_setup_data():
         cursor.execute("SELECT COUNT(*) FROM options")
         options_count = cursor.fetchone()[0]
         
-        print(f"\n📊 Database Summary:")
+        print(f"\nDatabase Summary:")
         print(f"  Categories: {categories_count}")
         print(f"  Blocks: {blocks_count}")
         print(f"  Questions: {questions_count}")
         print(f"  Options: {options_count}")
         
     except Exception as e:
-        print(f"❌ Error: {e}")
-        if conn:
+        print(f"ERROR: {e}")
+        if 'conn' in locals() and conn:
             conn.rollback()
         raise
     finally:
-        if conn:
+        if 'conn' in locals() and conn:
             conn.close()
 
 if __name__ == "__main__":
