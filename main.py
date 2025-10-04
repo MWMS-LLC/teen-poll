@@ -15,17 +15,14 @@ logger = logging.getLogger(__name__)
 
 # Try to import db module and handle errors gracefully
 try:
-    from db import connection_pool, db_check, db_ssl_status
+    from backend.db import connection_pool, db_check, db_ssl_status
     logger.info("Successfully imported db module")
 except Exception as e:
     logger.error(f"Failed to import db module: {e}")
     raise
 
-app = FastAPI()
 
-# Add startup event to log initialization
-@app.on_event("startup")
-async def startup_event():
+
     logger.info("Starting up application...")
     try:
         # Test database connection
