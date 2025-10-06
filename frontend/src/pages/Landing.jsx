@@ -441,7 +441,7 @@ const Landing = () => {
             }} 
             onClick={toggleSharing}
           >
-            {showSharing ? 'Hide Link' : 'Show Link'}
+            {showSharing ? 'Hide Link' : ''}
           </button>
         </div>
         {showSharing && (
