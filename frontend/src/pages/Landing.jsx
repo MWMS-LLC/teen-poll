@@ -416,24 +416,14 @@ const Landing = () => {
         </div>
         
         <div style={styles.taglineContainer}>
-          <div style={styles.tagline}>Funny or deep, quiet or bold—</div>
           <div style={styles.mainTagline}>Your voice matters.</div>
-          <div style={styles.subtitle}>No names. No tracking. Just vibes.</div>
-          <div style={styles.description}>Stats = trends, not truths. Mood rings, not microscopes.</div>
-          <div style={styles.callToAction}>
-            Pick a topic. Say it. <br />
-            <span style={styles.highlight}>See what others feel too.</span>
-          </div>
+          <div style={styles.subtitle}>No names. Just trends, not truths.</div>
         </div>
       </div>
 
       {/* Social Media Sharing Section */}
       <div style={styles.sharingSection}>
         <div style={styles.sharingHeader}>
-          <div style={styles.sharingTitle}>
-            <span style={styles.speech}>💬</span>
-            Drop it in your chat
-          </div>
           <button 
             style={{
               ...styles.hideLinkButton,
@@ -441,7 +431,7 @@ const Landing = () => {
             }} 
             onClick={toggleSharing}
           >
-            {showSharing ? 'Hide Link' : ''}
+            {showSharing ? 'Hide Link' : 'Share with your friends'}
           </button>
         </div>
         {showSharing && (
@@ -615,6 +605,14 @@ const Landing = () => {
               </>
             )}
         </div>
+
+      {/* Call to Action */}
+      <div style={styles.callToActionSection}>
+        <div style={styles.callToAction}>
+          Pick a topic. Click. <br />
+          <span style={styles.highlight}>See what others feel too.</span>
+        </div>
+      </div>
 
       {/* Category Topics */}
       <div style={styles.bubblesContainer}>
@@ -1025,6 +1023,12 @@ const styles = {
     fontWeight: '600',
     transition: 'all 0.3s ease',
     boxShadow: '0 5px 15px rgba(0, 0, 0, 0.2)'
+  },
+  
+  callToActionSection: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginBottom: '30px'
   },
   
   bubblesContainer: {
