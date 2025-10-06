@@ -606,13 +606,6 @@ const Landing = () => {
             )}
         </div>
 
-      {/* Call to Action */}
-      <div style={styles.callToActionSection}>
-        <div style={styles.callToAction}>
-          Pick a topic. Click. <br />
-          <span style={styles.highlight}>See what others feel too.</span>
-        </div>
-      </div>
 
       {/* Category Topics */}
       <div style={styles.bubblesContainer}>
@@ -926,7 +919,7 @@ const styles = {
   
   sharingHeader: {
     display: 'flex',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
     marginBottom: '10px',
     paddingBottom: '8px',
@@ -1025,11 +1018,6 @@ const styles = {
     boxShadow: '0 5px 15px rgba(0, 0, 0, 0.2)'
   },
   
-  callToActionSection: {
-    display: 'flex',
-    justifyContent: 'center',
-    marginBottom: '30px'
-  },
   
   bubblesContainer: {
     width: '100%',
