@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import HamburgerMenu from '../components/HamburgerMenu.jsx'
 import Footer from '../components/Footer.jsx'
@@ -20,7 +20,7 @@ const BeforeYouBegin = () => {
       {/* Warning Box */}
       <div style={styles.warningBox}>
         <span style={styles.warningIcon}>⚠️</span>
-        <span style={styles.warningText}>(Please read before selecting a bubble)</span>
+        <span style={styles.warningText}>Important to Know</span>
       </div>
 
       {/* Content Sections */}
@@ -28,18 +28,20 @@ const BeforeYouBegin = () => {
         <div style={styles.section}>
           <h2 style={styles.sectionTitle}>What this is:</h2>
           <ul style={styles.bulletList}>
-            <li>A place to explore questions about life, emotions, and identity</li>
-            <li>A space to hear how others feel, and add your say</li>
-            <li>Messages that respond to your answers—always with care</li>
+            <li>A safe, anonymous space for sharing feelings</li>
+            <li>A way to see how others your age feel about similar questions</li>
+            <li>A collection of trends and patterns—not personal profiles</li>
+            <li>A mix of polls, reflections, and soundtracks that connect with mood</li>
           </ul>
         </div>
 
         <div style={styles.section}>
           <h2 style={styles.sectionTitle}>What this is not:</h2>
           <ul style={styles.bulletList}>
-            <li>It's not therapy or medical advice</li>
-            <li>It's not a place for emergencies or crisis help</li>
-            <li>It's not collecting your personal info—we don't ask your name, email, or track you</li>
+            <li>Not therapy or medical advice</li>
+            <li>Not a place for emergencies or crisis help</li>
+            <li>Not collecting personal information—we don’t ask your name, email, or track you</li>
+            <li>Not precise statistics—because we don’t collect personal info, results show overall trends, not exact counts</li>
           </ul>
         </div>
 

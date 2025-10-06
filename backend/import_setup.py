@@ -3,6 +3,7 @@ import csv
 import os
 from datetime import datetime
 from dotenv import load_dotenv
+import pandas as pd
 
 # Load environment variables
 load_dotenv()
@@ -159,8 +160,18 @@ def import_setup_data():
         
         # Commit all data
         conn.commit()
-        print("SUCCESS: All data imported successfully!")
-        
+        print("SUCCESS: All data imported successfully!")      
+
+        def export_for_excel(query, filename, conn):
+            """Export query results to CSV with BOM so Excel displays punctuation correctly"""
+            df = pd.read_sql_query(query, conn)
+            df.to_csv(filename, index=False, encoding="utf-8-sig")
+            print(f"Saved Excel-friendly file: {filename}")
+
+        # Export options and questions for Excel
+        for table in ["categories", "blocks", "options", "questions"]:
+            export_for_excel(f"SELECT * FROM {table}", f"data/{table}_excel.csv", conn)
+
         # Show summary
         cursor.execute("SELECT COUNT(*) FROM categories")
         categories_count = cursor.fetchone()[0]

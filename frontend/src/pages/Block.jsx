@@ -107,9 +107,6 @@ const Block = () => {
           ← Back to Blocks
         </div>
         <h1 style={styles.pageTitle}>Questions</h1>
-        <div style={styles.pageSubtitle}>
-          Answer the questions below to see how others feel
-        </div>
       </div>
 
       <div style={styles.questionsContainer}>

@@ -52,7 +52,7 @@ const Soundtrack = () => {
   
   // Use the persistent audio context
   const { 
-    audioRef, 
+    audioRef: _audioRef, 
     currentSong, 
     isPlaying, 
     currentTime, 
@@ -122,12 +122,12 @@ const Soundtrack = () => {
 
   const handlePrevious = () => {
     if (!currentSong || !filteredSongs.length) return
-    playPreviousSong()
+        // playPreviousSong() // Function not defined
   }
 
   const handleNext = () => {
     if (!currentSong || !filteredSongs.length) return
-    playNextSong()
+    // playNextSong() // Function not defined
   }
 
   const formatTime = (time) => {

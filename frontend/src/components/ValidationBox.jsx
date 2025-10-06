@@ -35,23 +35,25 @@ const ValidationBox = ({ message, companionAdvice, showCompanion, onToggleCompan
 
       {companionAdvice && (
         <div>
-          <button
-            onClick={onToggleCompanion}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: showCompanion ? '#4ECDC4' : 'rgba(45, 125, 122, 0.2)',
-              color: 'white',
-              border: '1px solid rgba(45, 125, 122, 0.4)',
-              borderRadius: '25px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '600',
-              transition: 'all 0.3s ease',
-              boxShadow: showCompanion ? '0 4px 15px rgba(78, 205, 196, 0.3)' : 'none'
-            }}
-          >
-            {showCompanion ? 'Hide More' : 'More?'}
-          </button>
+          {!showCompanion && (
+            <button
+              onClick={onToggleCompanion}
+              style={{
+                padding: '10px 20px',
+                backgroundColor: 'rgba(45, 125, 122, 0.2)',
+                color: 'white',
+                border: '1px solid rgba(45, 125, 122, 0.4)',
+                borderRadius: '25px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '600',
+                transition: 'all 0.3s ease',
+                boxShadow: 'none'
+              }}
+            >
+              More?
+            </button>
+          )}
 
           {showCompanion && (
             <div style={{
@@ -62,14 +64,6 @@ const ValidationBox = ({ message, companionAdvice, showCompanion, onToggleCompan
               borderRadius: '12px',
               backdropFilter: 'blur(10px)'
             }}>
-              <div style={{ 
-                marginBottom: '15px',
-                color: '#4ECDC4',
-                fontWeight: '600',
-                fontSize: '16px'
-              }}>
-                💡 Companion Advice:
-              </div>
               <div style={{ 
                 whiteSpace: 'pre-line',
                 lineHeight: '1.6',

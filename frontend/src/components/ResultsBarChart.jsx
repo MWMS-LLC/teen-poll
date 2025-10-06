@@ -1,6 +1,6 @@
 import React from 'react'
 
-const ResultsBarChart = ({ results, questionText, options = [] }) => {
+const ResultsBarChart = ({ results, _questionText, options = [] }) => {
   // Helper function to get option text from options data
   const getOptionText = (option) => {
     if (options && options.length > 0) {

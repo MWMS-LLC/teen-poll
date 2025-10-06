@@ -18,7 +18,7 @@ const HamburgerMenu = () => {
   }
 
   // Utility function to clear localStorage and start fresh
-  const clearLocalStorageAndRefresh = () => {
+  const _clearLocalStorageAndRefresh = () => {
     try {
       // Clear all localStorage data
       localStorage.clear()
@@ -67,13 +67,13 @@ const HamburgerMenu = () => {
             style={styles.menuItem} 
             onClick={() => handleNavigate('/')}
           >
-            Pick a Bubble
+            Pick a Topic
           </button>
           <button 
             style={styles.menuItem} 
             onClick={handleSoundtrackNavigate}
           >
-            MyWorld Soundtrack
+            MyWorld Soundtrack 🎧
           </button>
           <button 
             style={styles.menuItem} 
@@ -90,7 +90,7 @@ const HamburgerMenu = () => {
           
           {/* Theme Song Toggle */}
           <div style={styles.toggleContainer}>
-            <span style={styles.toggleLabel}>Theme Song</span>
+            <span style={styles.toggleLabel}>Theme Song 🎧</span>
             <label style={styles.toggleSwitch}>
               <input 
                 type="checkbox" 

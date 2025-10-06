@@ -83,7 +83,7 @@ class SoundtrackService {
 
     // ✅ Keep "All Songs" at the top, sort the rest alphabetically
     const hasAllSongs = this.playlists.includes('All Songs');
-    let sorted = this.playlists.filter(p => p !== 'All Songs').sort((a, b) => a.localeCompare(b));
+    const sorted = this.playlists.filter(p => p !== 'All Songs').sort((a, b) => a.localeCompare(b));
     this.playlists = hasAllSongs ? ['All Songs', ...sorted] : sorted;
   }
 
@@ -155,11 +155,11 @@ class SoundtrackService {
   }
 
   // Get smart song recommendation based on question text and block code
-  getSmartSongRecommendation(questionText, blockCode) {
+  getSmartSongRecommendation(questionText, _blockCode) {
     if (!this.soundtracks.length) return null
     
     // Simple recommendation logic - can be enhanced later
-    const questionLower = questionText.toLowerCase()
+    const _questionLower = questionText.toLowerCase()
     
     // Look for mood matches
     const moodMatches = this.soundtracks.filter(song => 
