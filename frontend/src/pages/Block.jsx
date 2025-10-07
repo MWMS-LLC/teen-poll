@@ -16,7 +16,7 @@ const Block = () => {
   const [musicSuggestion, setMusicSuggestion] = useState(null)
   const [_allBlocks, setAllBlocks] = useState([])
   const [isLastBlock, setIsLastBlock] = useState(false)
-  const [allBlocksCompleted, setAllBlocksCompleted] = useState(false)
+  const [_allBlocksCompleted, setAllBlocksCompleted] = useState(false)
   const { blockCode } = useParams()
   const navigate = useNavigate()
 
@@ -97,6 +97,13 @@ const Block = () => {
     const newCount = answeredQuestions + 1
     setAnsweredQuestions(newCount)
 
+    // Track total questions answered in this category (across all blocks)
+    const categoryId = blockCode.split("_")[0]
+    const userUuid = localStorage.getItem('user_uuid')
+    const categoryAnswersKey = `category_${categoryId}_answers_${userUuid}`
+    const currentTotal = parseInt(localStorage.getItem(categoryAnswersKey) || '0')
+    localStorage.setItem(categoryAnswersKey, (currentTotal + 1).toString())
+
     // Mark block as completed when all questions are answered
     if (newCount === questions.length) {
       markBlockAsCompleted()
@@ -109,19 +116,17 @@ const Block = () => {
   }
 
   const handleViewSummary = () => {
-    // Check if all questions in current block are answered
-    if (answeredQuestions < questions.length) {
-      alert(`You need to answer all ${questions.length} questions in this block to see your summary.\n\nYou've answered ${answeredQuestions} so far.`)
-      return
-    }
-
-    // Check if all blocks are completed
-    if (!allBlocksCompleted) {
-      alert('You need to complete all blocks in this category to see your summary.')
-      return
-    }
-
+    // Check if user has answered at least 2 questions in this category
     const categoryId = blockCode.split("_")[0]
+    const userUuid = localStorage.getItem('user_uuid')
+    const categoryAnswersKey = `category_${categoryId}_answers_${userUuid}`
+    const totalAnswered = parseInt(localStorage.getItem(categoryAnswersKey) || '0')
+
+    if (totalAnswered < 2) {
+      alert(`You need to answer at least 2 questions in this category to see your summary.\n\nYou've answered ${totalAnswered} so far.`)
+      return
+    }
+
     navigate(`/summary/${categoryId}`)
   }
 
