@@ -613,16 +613,18 @@ const Landing = () => {
           {categories.map((category, index) => {
             const categoryStyle = getCategoryStyle(category.id)
             const isActive = isCategoryActiveToday(category)
-            const dayOfWeekArray = parseDayOfWeek(category.day_of_week)
-            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+            const _dayOfWeekArray = parseDayOfWeek(category.day_of_week)
+            const _dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
             
             return (
               <Tooltip 
                 key={category.id}
                 content={
-                  dayOfWeekArray && dayOfWeekArray.length > 0
-                    ? `${category.category_text || category.description || 'Category'}\n\nAvailable: ${dayOfWeekArray.map(day => dayNames[day]).join(', ')}`
-                    : (category.category_text || category.description || 'Category')
+                  // Commented out weekday availability - can re-enable if needed
+                  // dayOfWeekArray && dayOfWeekArray.length > 0
+                  //   ? `${category.category_text || category.description || 'Category'}\n\nAvailable: ${dayOfWeekArray.map(day => dayNames[day]).join(', ')}`
+                  //   : (category.category_text || category.description || 'Category')
+                  (category.category_text || category.description || 'Category')
                 }
                 position="top"
               >
@@ -650,14 +652,15 @@ const Landing = () => {
                     color: !isActive ? '#666666' : styles.bubbleText.color
                   }}>
                     {formatCategoryName(category.category_name)}
-                    {!isActive && dayOfWeekArray && (
+                    {/* Commented out weekday availability text - can re-enable if needed */}
+                    {/* {!isActive && dayOfWeekArray && (
                       <div style={{
                         ...styles.inactiveIndicator,
                         color: '#666666'
                       }}>
                         (Available {dayOfWeekArray.map(day => dayNames[day].slice(0, 3)).join(', ')})
                       </div>
-                    )}
+                    )} */}
                   </div>
                 </button>
               </Tooltip>

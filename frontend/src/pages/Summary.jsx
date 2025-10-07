@@ -164,6 +164,20 @@ const Summary = () => {
           </div>
         </div>
 
+        {/* Music Suggestion */}
+        <div style={styles.musicNote}>
+          <span style={styles.musicNoteIcon}>🎵</span>
+          <span style={styles.musicNoteText}>
+            Soundtrack for this moment: 
+            <button 
+              style={styles.musicLink}
+              onClick={() => navigate('/soundtrack?playlist=5 Years Later')}
+            >
+              5 Years Later
+            </button>
+          </span>
+        </div>
+
         <div style={styles.futureNote}>
           <span style={styles.futureNoteIcon}>✨</span>
           <span style={styles.futureNoteText}>Personalized AI summaries coming soon!</span>
@@ -293,6 +307,39 @@ const styles = {
     height: '1px',
     background: 'linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.3), transparent)',
     marginBottom: '30px'
+  },
+
+  musicNote: {
+    textAlign: 'center',
+    padding: '15px',
+    background: 'rgba(78, 205, 196, 0.1)',
+    borderRadius: '15px',
+    border: '1px solid rgba(78, 205, 196, 0.3)',
+    marginBottom: '20px'
+  },
+
+  musicNoteIcon: {
+    fontSize: '20px',
+    marginRight: '10px'
+  },
+
+  musicNoteText: {
+    fontSize: '16px',
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontWeight: '500'
+  },
+
+  musicLink: {
+    background: 'none',
+    border: 'none',
+    color: '#4ECDC4',
+    fontSize: '16px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    textDecoration: 'underline',
+    marginLeft: '5px',
+    padding: '0',
+    transition: 'all 0.2s ease'
   },
 
   futureNote: {
