@@ -228,9 +228,10 @@ const Block = () => {
         </div>
       )}
 
-      {/* Summary Button or Back to Blocks Button */}
+      {/* Navigation Buttons */}
       <div style={styles.backToBlocksContainer}>
         {isLastBlock ? (
+          /* Final block: Summary button only */
           <button
             style={styles.summaryButton}
             onClick={handleViewSummary}
@@ -239,6 +240,7 @@ const Block = () => {
             ✨ See Your Summary
           </button>
         ) : (
+          /* Regular blocks: Back to Blocks button */
           <button
             style={styles.backToBlocksButton}
             onClick={handleNextBlock}
@@ -479,7 +481,9 @@ const styles = {
     width: '100%',
     maxWidth: '800px',
     display: 'flex',
-    justifyContent: 'center',
+    flexDirection: 'column',
+    gap: '15px',
+    alignItems: 'center',
     marginTop: '40px',
     marginBottom: '20px'
   },
