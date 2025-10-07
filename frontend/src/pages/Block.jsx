@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { fetchQuestions } from '../services/apiService';
+import { fetchQuestions, fetchBlocks } from '../services/apiService';
 import Question from '../components/Question'
 import HamburgerMenu from '../components/HamburgerMenu'
 import Footer from '../components/Footer.jsx'
@@ -14,6 +14,9 @@ const Block = () => {
   const [answeredQuestions, setAnsweredQuestions] = useState(0)
   const [showMusicSuggestion, setShowMusicSuggestion] = useState(false)
   const [musicSuggestion, setMusicSuggestion] = useState(null)
+  const [_allBlocks, setAllBlocks] = useState([])
+  const [isLastBlock, setIsLastBlock] = useState(false)
+  const [allBlocksCompleted, setAllBlocksCompleted] = useState(false)
   const { blockCode } = useParams()
   const navigate = useNavigate()
 
@@ -41,6 +44,40 @@ const Block = () => {
     }
   }
 
+  const loadBlocksForCategory = async () => {
+    try {
+      const categoryId = blockCode.split("_")[0]
+      const blocks = await fetchBlocks(categoryId)
+      setAllBlocks(blocks)
+      
+      // Check if this is the last block
+      const isLast = blocks[blocks.length - 1]?.block_code === blockCode
+      setIsLastBlock(isLast)
+      
+      // Check if all blocks are completed
+      const userUuid = localStorage.getItem('user_uuid')
+      const completedBlocks = JSON.parse(localStorage.getItem(`completed_blocks_${userUuid}`) || '[]')
+      
+      const allCompleted = blocks.every(block => 
+        completedBlocks.includes(block.block_code) || block.block_code === blockCode
+      )
+      setAllBlocksCompleted(allCompleted)
+    } catch (err) {
+      console.error("Error loading blocks:", err)
+    }
+  }
+
+  const markBlockAsCompleted = () => {
+    const userUuid = localStorage.getItem('user_uuid')
+    const completedBlocks = JSON.parse(localStorage.getItem(`completed_blocks_${userUuid}`) || '[]')
+    
+    if (!completedBlocks.includes(blockCode)) {
+      completedBlocks.push(blockCode)
+      localStorage.setItem(`completed_blocks_${userUuid}`, JSON.stringify(completedBlocks))
+      console.log('Block marked as completed:', blockCode)
+    }
+  }
+
   useEffect(() => {
     const userUuid = localStorage.getItem('user_uuid')
     if (!userUuid) {
@@ -53,16 +90,27 @@ const Block = () => {
 
     loadQuestions()
     loadSoundtracks()
+    loadBlocksForCategory()
   }, [blockCode, navigate])
 
   const handleQuestionAnswered = (questionData) => {
     const newCount = answeredQuestions + 1
     setAnsweredQuestions(newCount)
 
+    // Mark block as completed when all questions are answered
+    if (newCount === questions.length) {
+      markBlockAsCompleted()
+    }
+
     if (newCount >= Math.min(3, questions.length) && !showMusicSuggestion) {
       setShowMusicSuggestion(true)
       generateMusicSuggestion(questionData)
     }
+  }
+
+  const handleViewSummary = () => {
+    const categoryId = blockCode.split("_")[0]
+    navigate(`/summary/${categoryId}`)
   }
 
   const generateMusicSuggestion = (questionData) => {
@@ -79,6 +127,11 @@ const Block = () => {
 
   const handleListenToPlaylist = () => {
     navigate('/soundtrack')
+  }
+
+  const handleNextBlock = () => {
+    const categoryId = blockCode.split("_")[0]
+    navigate(`/category/${categoryId}`)
   }
 
   if (loading) {
@@ -157,6 +210,27 @@ const Block = () => {
           </div>
         </div>
       )}
+
+      {/* Summary Button or Back to Blocks Button */}
+      <div style={styles.backToBlocksContainer}>
+        {isLastBlock && allBlocksCompleted && answeredQuestions === questions.length ? (
+          <button
+            style={styles.summaryButton}
+            onClick={handleViewSummary}
+            className="summary-button-hover"
+          >
+            ✨ See Your Summary
+          </button>
+        ) : (
+          <button
+            style={styles.backToBlocksButton}
+            onClick={handleNextBlock}
+            className="back-to-blocks-hover"
+          >
+            Back to Blocks
+          </button>
+        )}
+      </div>
 
       <Footer />
     </div>
@@ -382,6 +456,46 @@ const styles = {
     fontSize: '18px',
     color: 'rgba(255, 255, 255, 0.7)',
     textShadow: '0 0 10px rgba(255, 255, 255, 0.2)'
+  },
+
+  backToBlocksContainer: {
+    width: '100%',
+    maxWidth: '800px',
+    display: 'flex',
+    justifyContent: 'center',
+    marginTop: '40px',
+    marginBottom: '20px'
+  },
+
+  backToBlocksButton: {
+    padding: '15px 30px',
+    fontSize: '16px',
+    fontWeight: '600',
+    color: 'white',
+    backgroundColor: '#2D7D7A',
+    border: '2px solid #2D7D7A',
+    borderRadius: '25px',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 4px 15px rgba(45, 125, 122, 0.3)',
+    textTransform: 'none',
+    letterSpacing: '0.5px'
+  },
+
+  summaryButton: {
+    padding: '18px 35px',
+    fontSize: '18px',
+    fontWeight: '700',
+    color: '#0A0F2B',
+    background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+    border: '2px solid rgba(255, 215, 0, 0.5)',
+    borderRadius: '30px',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 8px 25px rgba(255, 215, 0, 0.4)',
+    textTransform: 'none',
+    letterSpacing: '0.5px',
+    animation: 'sparkle 2s ease-in-out infinite'
   }
 }
 

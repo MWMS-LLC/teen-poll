@@ -32,6 +32,8 @@ export default [
         clearInterval: 'readonly',
         fetch: 'readonly',
         Audio: 'readonly',
+        // Node.js globals
+        process: 'readonly',
         // React globals (if needed)
         React: 'readonly',
       },

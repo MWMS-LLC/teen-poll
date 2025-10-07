@@ -417,7 +417,7 @@ const Landing = () => {
         
         <div style={styles.taglineContainer}>
           <div style={styles.mainTagline}>Your voice matters.</div>
-          <div style={styles.subtitle}>No names. Just trends, not truths.</div>
+          <div style={styles.subtitle}>Pick a topic. Click. See what others feel too, anonymously.</div>
         </div>
       </div>
 

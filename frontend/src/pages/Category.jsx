@@ -53,7 +53,7 @@ const Category = () => {
     console.log('User UUID found:', userUuid);
     loadBlocks();          //  wrapper that calls fetchBlocks
     autoPlayThemeSong();
-  }, [categoryId]);
+  }, [categoryId, loadBlocks]);
 
   const handleBlockClick = (block) => {
     // Always navigate to block page
@@ -170,11 +170,11 @@ const Category = () => {
 // Beautiful, subtle block gradients - more neutral and appealing to everyone
 const getBlockGradient = (index) => {
   const gradients = [
-    "linear-gradient(135deg, #4A5568 0%, #2D3748 100%)", // Subtle gray
+    "linear-gradient(135deg, #D69E2E 0%, #B7791F 100%)", // Warm gold (was gray)
     "linear-gradient(135deg, #2C7A7B 0%, #234E52 100%)", // Muted teal
     "linear-gradient(135deg, #553C9A 0%, #44318E 100%)", // Deep purple
     "linear-gradient(135deg, #C53030 0%, #9B2C2C 100%)", // Muted red
-    "linear-gradient(135deg, #D69E2E 0%, #B7791F 100%)", // Warm gold
+    "linear-gradient(135deg, #2B6CB0 0%, #2C5282 100%)", // Soft blue (replaces warm gold slot)
     "linear-gradient(135deg, #38A169 0%, #2F855A 100%)", // Forest green
     "linear-gradient(135deg, #3182CE 0%, #2C5282 100%)", // Navy blue
     "linear-gradient(135deg, #805AD5 0%, #6B46C1 100%)", // Royal purple

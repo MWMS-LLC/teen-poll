@@ -4,6 +4,7 @@ import { AudioProvider } from './contexts/AudioContext.jsx'
 import Landing from './pages/Landing.jsx'
 import Category from './pages/Category.jsx'
 import Block from './pages/Block.jsx'
+import Summary from './pages/Summary.jsx'
 import TooOld from './pages/TooOld.jsx'
 import TooYoung from './pages/TooYoung.jsx'
 import BeforeYouBegin from './pages/BeforeYouBegin.jsx'
@@ -22,6 +23,7 @@ function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/category/:categoryId" element={<Category />} />
             <Route path="/block/:blockCode" element={<Block />} />
+            <Route path="/summary/:categoryId" element={<Summary />} />
             <Route path="/too-old" element={<TooOld />} />
             <Route path="/too-young" element={<TooYoung />} />
             <Route path="/before-you-begin" element={<BeforeYouBegin />} />
