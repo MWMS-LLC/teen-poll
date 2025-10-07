@@ -107,7 +107,8 @@ const Landing = () => {
   }
   
   // Check if category should be active today
-  const isCategoryActiveToday = (category) => {
+  // Commented out - all categories now always active
+  const _isCategoryActiveToday = (category) => {
     // If day_of_week is not available yet (old API), always show as active
     if (!category.day_of_week) {
       return true
@@ -612,7 +613,9 @@ const Landing = () => {
         <div style={styles.bubblesGrid}>
           {categories.map((category, index) => {
             const categoryStyle = getCategoryStyle(category.id)
-            const isActive = isCategoryActiveToday(category)
+            // Commented out day-of-week restriction - all categories always active
+            // const isActive = isCategoryActiveToday(category)
+            const isActive = true // Always active
             const _dayOfWeekArray = parseDayOfWeek(category.day_of_week)
             const _dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
             
