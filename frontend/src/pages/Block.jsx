@@ -109,6 +109,18 @@ const Block = () => {
   }
 
   const handleViewSummary = () => {
+    // Check if all questions in current block are answered
+    if (answeredQuestions < questions.length) {
+      alert(`You need to answer all ${questions.length} questions in this block to see your summary.\n\nYou've answered ${answeredQuestions} so far.`)
+      return
+    }
+
+    // Check if all blocks are completed
+    if (!allBlocksCompleted) {
+      alert('You need to complete all blocks in this category to see your summary.')
+      return
+    }
+
     const categoryId = blockCode.split("_")[0]
     navigate(`/summary/${categoryId}`)
   }
@@ -213,7 +225,7 @@ const Block = () => {
 
       {/* Summary Button or Back to Blocks Button */}
       <div style={styles.backToBlocksContainer}>
-        {isLastBlock && allBlocksCompleted && answeredQuestions === questions.length ? (
+        {isLastBlock ? (
           <button
             style={styles.summaryButton}
             onClick={handleViewSummary}
