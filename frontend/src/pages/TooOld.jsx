@@ -83,20 +83,26 @@ const TooOld = () => {
             We'll be asking real questions—about:
           </p>
           <div style={styles.topics}>
-            <span style={styles.topic}>❤️ heartbreak</span>
+            <span style={styles.topic}>💕 love/heartbreak</span>
             <span style={styles.topic}>👥 friendship</span>
             <span style={styles.topic}>💼 work</span>
+            <span style={styles.topic}>💰 money</span>
+            <span style={styles.topic}>🚀 future</span>
             <span style={styles.topic}>🌱 healing</span>
             <span style={styles.topic}>🌀 choices you made (or didn't)</span>
           </div>
-          <div style={styles.comingSoon}>
-            <p style={styles.comingSoonTitle}>Coming soon:</p>
-            <ul style={styles.featureList}>
-              <li style={styles.featureListItem}>Thought-provoking polls</li>
-              <li style={styles.featureListItem}>Insightful results</li>
-              <li style={styles.featureListItem}>A space to reflect, laugh, regret, and grow</li>
-              <li style={styles.featureListItem}>Sometimes, seeing the bar chart is all it takes to realize you're not the only one.</li>
-            </ul>
+          <div style={styles.parentsLinkContainer}>
+            <p style={styles.parentsLinkText}>
+              <strong>Ready to share your perspective?</strong>
+            </p>
+            <a 
+              href="https://youth.myworldmysay.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={styles.parentsLink}
+            >
+              Visit Youth Poll →
+            </a>
           </div>
         </div>
 
