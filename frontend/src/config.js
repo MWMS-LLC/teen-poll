@@ -1,6 +1,6 @@
 // API Configuration
-// Controlled by environment variables in .env.development and .env.production
+// Hardcoded for reliability (environment variables are not dependable)
 
-const API_BASE = import.meta.env.VITE_API_BASE;
+const API_BASE = "https://api.myworldmysay.com";
 
 export default API_BASE;

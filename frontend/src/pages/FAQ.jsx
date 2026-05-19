@@ -65,6 +65,10 @@ const FAQ = () => {
         <h2 style={styles.aboutTitle}>About My World My Say</h2>
 
         <p style={{ ...styles.aboutText, textAlign: "left" }}>
+          My World My Say LLC is a North Carolina–based educational technology company developing CQ Gym, a structured communication training platform and anonymous polls to make people feel less alone.
+        </p>
+
+        <p style={{ ...styles.aboutText, textAlign: "left" }}>
           This app grew out of real conversations—between parents, psychologists, and teens themselves. 
           The thoughts are true. The emotions are shared.
         </p>

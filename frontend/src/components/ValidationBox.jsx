@@ -20,7 +20,7 @@ const ValidationBox = ({ message, companionAdvice, showCompanion, onToggleCompan
         fontWeight: '600',
         fontSize: '16px'
       }}>
-        ✨ Your response has been recorded!
+        ✨ Based on Your Response…
       </div>
       
       <div style={{ 

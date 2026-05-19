@@ -1,5 +1,5 @@
 // Soundtrack service for managing music data and playlist integration
-const API_BASE = import.meta.env.VITE_API_BASE;
+import API_BASE from '../config.js';
 
 class SoundtrackService {
   constructor() {

@@ -43,10 +43,12 @@ CREATE TABLE responses (
     block_number INTEGER,
     
     -- Metadata
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     
-    -- Prevent duplicate votes from same user on same question
-    CONSTRAINT unique_user_question_response UNIQUE (user_uuid, question_code)
+    -- FUTURE: If you want to enforce one vote per user per question, uncomment below:
+    -- This will prevent users from voting multiple times on the same question.
+    -- Note: Before adding this constraint, you must remove any duplicate rows first.
+    -- CONSTRAINT unique_user_question_response UNIQUE (user_uuid, question_code)
 );
 
 -- Create checkbox_responses table for multi-select votes
@@ -77,10 +79,12 @@ CREATE TABLE checkbox_responses (
     
     -- Metadata
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    weight REAL DEFAULT 1.0,
+    weight REAL DEFAULT 1.0
     
-    -- Prevent duplicate responses
-    UNIQUE(user_uuid, question_code, option_select)
+    -- FUTURE: If you want to prevent duplicate option selections per user per question, uncomment below:
+    -- This will prevent users from selecting the same option multiple times for the same question.
+    -- Note: Before adding this constraint, you must remove any duplicate rows first.
+    -- UNIQUE(user_uuid, question_code, option_select)
 );
 
 -- Create other_responses table for free-text responses
@@ -107,10 +111,12 @@ CREATE TABLE other_responses (
     other_text TEXT NOT NULL,
     
     -- Metadata
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     
-    -- Prevent duplicate other responses from same user on same question
-    CONSTRAINT unique_user_question_other UNIQUE (user_uuid, question_code)
+    -- FUTURE: If you want to enforce one "other" response per user per question, uncomment below:
+    -- This will prevent users from submitting multiple "other" text responses for the same question.
+    -- Note: Before adding this constraint, you must remove any duplicate rows first.
+    -- CONSTRAINT unique_user_question_other UNIQUE (user_uuid, question_code)
 );
 
 -- Create indexes for better performance

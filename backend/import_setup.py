@@ -8,6 +8,18 @@ import pandas as pd
 # Load environment variables
 load_dotenv()
 
+# Resolve paths: script is in backend/, data/ is at project root
+# DATA_DIR env var: override with full path (e.g. C:\...\parents_chinese1230\data)
+# DATA_SOURCE env var: use data/DATA_SOURCE/ subfolder instead of data/
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+_data_base = os.path.join(os.path.dirname(SCRIPT_DIR), 'data')
+_override = os.getenv('DATA_DIR', '').strip()
+if _override:
+    DATA_DIR = _override
+else:
+    _data_subdir = os.getenv('DATA_SOURCE', '').strip()
+    DATA_DIR = os.path.join(_data_base, _data_subdir) if _data_subdir else _data_base
+
 def clean_csv_value(value):
     """Clean CSV values and handle multi-line content"""
     if value is None:
@@ -18,6 +30,11 @@ def clean_csv_value(value):
     if '\n' in value:
         value = value.replace('\n', ' ')
     return value
+
+def optional_unique(value):
+    """Return None for empty values to avoid unique constraint violations on empty strings"""
+    v = clean_csv_value(value) if value is not None else None
+    return None if v is None or v == '' else v
 
 def import_setup_data():
     """Import CSV data into PostgreSQL database"""
@@ -36,7 +53,7 @@ def import_setup_data():
         print("Setting up fresh database schema...")
         
         # Execute setup schema
-        with open('schema_setup.sql', 'r') as f:
+        with open(os.path.join(SCRIPT_DIR, 'schema_setup.sql'), 'r') as f:
             setup_schema = f.read()
         cursor.execute(setup_schema)
         print("SUCCESS: Setup schema created")
@@ -59,7 +76,7 @@ def import_setup_data():
         
         # Import categories
         print("  Importing categories...")
-        with open('data/categories.csv', 'r', encoding='utf-8-sig') as f:
+        with open(os.path.join(DATA_DIR, 'categories.csv'), 'r', encoding='utf-8-sig') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 # Parse day_of_week array from PostgreSQL format "{0,1,2,3,4,5,6}"
@@ -79,7 +96,7 @@ def import_setup_data():
                     clean_csv_value(row.get('description', '')),
                     clean_csv_value(row.get('category_text_long', '')),
                     clean_csv_value(row.get('version', '')),
-                    clean_csv_value(row.get('uuid', '')),
+                    optional_unique(row.get('uuid', '')),
                     int(row.get('sort_order', 0)),
                     datetime.now()
                 ))
@@ -87,7 +104,7 @@ def import_setup_data():
         
         # Import blocks
         print("  Importing blocks...")
-        with open('data/blocks.csv', 'r', encoding='utf-8-sig') as f:
+        with open(os.path.join(DATA_DIR, 'blocks.csv'), 'r', encoding='utf-8-sig') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 cursor.execute("""
@@ -99,7 +116,7 @@ def import_setup_data():
                     clean_csv_value(row['block_code']),
                     clean_csv_value(row['block_text']),
                     clean_csv_value(row.get('version', '')),
-                    clean_csv_value(row.get('uuid', '')),
+                    optional_unique(row.get('uuid', '')),
                     clean_csv_value(row.get('category_name', '')),
                     datetime.now()
                 ))
@@ -107,7 +124,7 @@ def import_setup_data():
         
         # Import questions
         print("  Importing questions...")
-        with open('data/questions.csv', 'r', encoding='utf-8-sig') as f:
+        with open(os.path.join(DATA_DIR, 'questions.csv'), 'r', encoding='utf-8-sig') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 cursor.execute("""
@@ -132,7 +149,7 @@ def import_setup_data():
         
         # Import options
         print("  Importing options...")
-        with open('data/options.csv', 'r', encoding='utf-8-sig') as f:
+        with open(os.path.join(DATA_DIR, 'options.csv'), 'r', encoding='utf-8-sig') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 cursor.execute("""
@@ -168,9 +185,13 @@ def import_setup_data():
             df.to_csv(filename, index=False, encoding="utf-8-sig")
             print(f"Saved Excel-friendly file: {filename}")
 
-        # Export options and questions for Excel
+        # Export for Excel (to project data/ when using external DATA_DIR)
+        _export_dir = _data_base if _override else DATA_DIR
         for table in ["categories", "blocks", "options", "questions"]:
-            export_for_excel(f"SELECT * FROM {table}", f"data/{table}_excel.csv", conn)
+            try:
+                export_for_excel(f"SELECT * FROM {table}", os.path.join(_export_dir, f"{table}_excel.csv"), conn)
+            except PermissionError:
+                print(f"    (Skipped export to {_export_dir} - permission denied)")
 
         # Show summary
         cursor.execute("SELECT COUNT(*) FROM categories")

@@ -41,6 +41,17 @@ const HamburgerMenu = () => {
 
   return (
     <div style={styles.container}>
+      <button
+        style={styles.hamburgerButton}
+        onClick={() => { window.location.href = 'https://myworldmysay.com' }}
+        aria-label="Go to home"
+      >
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={styles.hamburgerIcon}>
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+          <polyline points="9 22 9 12 15 12 15 22" />
+        </svg>
+      </button>
+
       {/* Hamburger Icon */}
       <button
         style={styles.hamburgerButton}
@@ -73,7 +84,7 @@ const HamburgerMenu = () => {
             style={styles.menuItem} 
             onClick={handleSoundtrackNavigate}
           >
-            MyWorld Soundtrack 🎧
+            MyWorld Soundtrack ??
           </button>
           <button 
             style={styles.menuItem} 
@@ -90,7 +101,7 @@ const HamburgerMenu = () => {
           
           {/* Theme Song Toggle */}
           <div style={styles.toggleContainer}>
-            <span style={styles.toggleLabel}>Theme Song 🎧</span>
+            <span style={styles.toggleLabel}>Theme Song ??</span>
             <label style={styles.toggleSwitch}>
               <input 
                 type="checkbox" 
@@ -117,7 +128,10 @@ const styles = {
     position: 'fixed',
     top: '16px',
     right: '16px',
-    zIndex: 50
+    zIndex: 50,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px'
   },
   
   hamburgerButton: {

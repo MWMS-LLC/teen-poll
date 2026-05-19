@@ -36,6 +36,10 @@ const Footer = () => {
             </svg>
           </a>
         </div>
+        
+        <div style={styles.footnote}>
+          My World My Say LLC is headquartered in North Carolina, USA.
+        </div>
       </div>
     </div>
   )
@@ -103,6 +107,14 @@ const styles = {
       color: '#4ECDC4',
       transform: 'scale(1.1)'
     }
+  },
+  
+  footnote: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: '12px',
+    marginTop: '12px',
+    paddingTop: '10px',
+    borderTop: '1px solid rgba(255, 255, 255, 0.1)'
   }
 }
 

@@ -357,95 +357,101 @@ It's not about blame. It’s about how support can feel strong and soft.
 [playlist:Family]
 
 What do you wish your parents did differently to support you?",TRUE,10,#FFB6C1,1,,
-187,11,Future,1,"AI and Me: Use It, Build It, or Stop it
-🎵[playlist:AI and Me]",11_1,1,"Did you know many teens have tried AI for school or learning?
+187,11,Future,1,Future & Success,11_1,1,"When you think about your future, what matters most to you?",FALSE,1,#F08080,1,,
+188,11,Future,1,Future & Success,11_2,2,Do you think your parents would agree with your answer?,FALSE,1,#D6C7E7,1,,
+189,11,Future,1,Future & Success,11_3,3,"When adults talk about “success,” you usually feel:",FALSE,1,#ADD8E6,1,,
+190,11,Future,1,Future & Success,11_4,4,"When adults talk about “success,” you usually feel:",FALSE,1,#98FB98,1,,
+191,11,Future,2,"AI and Me: Use It, Build It, or Stop it
+🎵[playlist:AI and Me]",11_5,5,"Did you know many teens have tried AI for school or learning?
 Have you used the following AI tools?",TRUE,10,#ADD8E6,1,,
-188,11,Future,1,"AI & Me: Use It, Build It, or Stop it",11_2,2,What did you use them for? ,TRUE,10,#F08080,1,,
-189,11,Future,1,"AI & Me: Use It, Build It, or Stop it",11_3,3,What’s stopping you from using AI more?,FALSE,1,#ADD8E6,1,,
-190,11,Future,1,"AI & Me: Use It, Build It, or Stop it",11_4,4,What is your plan with AI? ,FALSE,1,#FFE066,1,,
-191,11,Future,1,"AI & Me: Use It, Build It, or Stop it",11_5,5,"If you chose to build it or use it, which role sounds most like you?",FALSE,1,#FFB6C1,1,,
-192,11,Future,1,"AI & Me: Use It, Build It, or Stop it",11_6,6,Should we stop AI?,FALSE,1,#FFAD84,1,,
-193,11,Future,2,"Work, Worth & the AI Economy",11_7,7,"You don’t get polled—but you’ll live the outcome.
+192,11,Future,2,"AI & Me: Use It, Build It, or Stop it",11_6,6,What did you use them for? ,TRUE,10,#F08080,1,,
+193,11,Future,2,"AI & Me: Use It, Build It, or Stop it",11_7,7,What’s stopping you from using AI more?,FALSE,1,#ADD8E6,1,,
+194,11,Future,2,"AI & Me: Use It, Build It, or Stop it",11_8,8,What is your plan with AI? ,FALSE,1,#FFE066,1,,
+195,11,Future,2,"AI & Me: Use It, Build It, or Stop it",11_9,9,"If you chose to build it or use it, which role sounds most like you?",FALSE,1,#FFB6C1,1,,
+196,11,Future,2,"AI & Me: Use It, Build It, or Stop it",11_10,10,Should we stop AI?,FALSE,1,#FFAD84,1,,
+197,11,Future,3,"Work, Worth & the AI Economy",11_11,11,"You don’t get polled—but you’ll live the outcome.
 AI is changing jobs, and 41% of grads aren’t using their degrees.
 What kinds of new jobs do you think could grow—knowing no one can really predict the future?
 
 You may want to check out ""The Future of Work"" at BBC ",TRUE,10,#FFE066,1,,
-194,11,Future,2,"Work, Worth & the AI Economy",11_8,8,"If you could make good money without a degree, would you skip college?
+198,11,Future,3,"Work, Worth & the AI Economy",11_12,12,"If you could make good money without a degree, would you skip college?
 No one path fits all. But asking these questions early? That’s what smart people do.",FALSE,1,#F08080,1,,
-195,11,Future,2,"Work, Worth & the AI Economy",11_9,9,Should you learn to weld and make $150k underwater?,FALSE,1,#D6C7E7,1,,
-196,11,Future,2,"Work, Worth & the AI Economy",11_10,10,"Plumbing: one of the last jobs robots can’t do (yet).
+199,11,Future,3,"Work, Worth & the AI Economy",11_13,13,Should you learn to weld and make $150k underwater?,FALSE,1,#D6C7E7,1,,
+200,11,Future,3,"Work, Worth & the AI Economy",11_14,14,"Plumbing: one of the last jobs robots can’t do (yet).
 Would you?",FALSE,1,#ADD8E6,1,,
-197,11,Future,2,"Work, Worth & the AI Economy",11_11,11,"Plenty of sunshine. Plenty of weeds. No robots in sight (yet).
+201,11,Future,3,"Work, Worth & the AI Economy",11_15,15,"Plenty of sunshine. Plenty of weeds. No robots in sight (yet).
 Jobs like hand-weeding are open. Would you take one?",FALSE,1,#98FB98,1,,
-198,11,Future,2,"Work, Worth & the AI Economy",11_12,12,How much would you want to be paid per year to pull weeds?,FALSE,1,#B0C4DE,1,,
-199,11,Future,2,"Work, Worth & the AI Economy",11_13,13,"How much do you think workers like this (e.g., weeding by hand) are usually paid per year?",FALSE,1,#F08080,1,,
-200,11,Future,2,"Work, Worth & the AI Economy",11_14,14,"Even before AI hit the job market, over half of young adults (18–29) were still living with their parents.
+202,11,Future,3,"Work, Worth & the AI Economy",11_16,16,How much would you want to be paid per year to pull weeds?,FALSE,1,#B0C4DE,1,,
+203,11,Future,3,"Work, Worth & the AI Economy",11_17,17,"How much do you think workers like this (e.g., weeding by hand) are usually paid per year?",FALSE,1,#F08080,1,,
+204,11,Future,3,"Work, Worth & the AI Economy",11_18,18,"Even before AI hit the job market, over half of young adults (18–29) were still living with their parents.
 If jobs stay flaky and rent keeps climbing, what’s your Plan B?",FALSE,1,#ADD8E6,1,,
-201,11,Future,2,"Work, Worth & the AI Economy",11_15,15,"When AI does the work, humans still need to eat.
+205,11,Future,3,"Work, Worth & the AI Economy",11_19,19,"When AI does the work, humans still need to eat.
 Should the government step in—or let it play out?
 Your ideas now could shape what happens next.
 This isn’t a quiz—it’s a fork in the road.",FALSE,1,#FFB6C1,1,,
-202,11,Future,2,"Work, Worth & the AI Economy",11_16,16,"Let’s say you got $1,000/month UBI, no strings attached.
+206,11,Future,3,"Work, Worth & the AI Economy",11_20,20,"Let’s say you got $1,000/month UBI, no strings attached.
 Would it be survival? Freedom? Strategy?
 What’s your real plan?",FALSE,1,#98FB98,1,,
-203,11,Future,2,"Work, Worth & the AI Economy",11_17,17,"If AI is so powerful—like, powerful enough to take everyone’s job—why can’t it earn $100K a year for everyone?",FALSE,1,#FFE066,1,,
-204,11,Future,2,"Work, Worth & the AI Economy",11_18,18,"You grew up with AI in your pocket.
+207,11,Future,3,"Work, Worth & the AI Economy",11_21,21,"If AI is so powerful—like, powerful enough to take everyone’s job—why can’t it earn $100K a year for everyone?",FALSE,1,#FFE066,1,,
+208,11,Future,3,"Work, Worth & the AI Economy",11_22,22,"You grew up with AI in your pocket.
 Maybe you’re the first generation to dream beyond survival.
 What would you do if you had $100K/year—no strings attached?",TRUE,10,#FFAD84,1,,
-205,11,Future,2,"Work, Worth & the AI Economy",11_19,19,"If AI can do most of the work, what do you think humans are here for?",FALSE,1,#D6C7E7,1,,
-206,11,Future,2,"Work, Worth & the AI Economy",11_20,20,Why do you think people should work?,TRUE,10,#F08080,1,,
-207,11,Future,3,"Future Me: Real, Brave, and Still Human",11_22,22,"In a tech-filled future, what still excites you most?",TRUE,10,#ADD8E6,1,,
-208,11,Future,3,"Future Me: Real, Brave, and Still Human
-🎵[playlist:Theme Song]",11_23,23,What’s something you secretly hope to be amazing at?,TRUE,10,#98FB98,1,,
-209,11,Future,3,"Future Me: Real, Brave, and Still Human",11_24,24,What’s your biggest fear about the future?,TRUE,10,#B0C4DE,1,,
-210,11,Future,3,"Future Me: Real, Brave, and Still Human",11_25,25,What are you quietly building for your future self—something even smarter tech can’t touch?,TRUE,10,#F08080,1,,
-211,12,School,1,Ready or Not,12_1,1,"Back-to-school isn’t just supplies and schedules.
+209,11,Future,3,"Work, Worth & the AI Economy",11_23,23,"If AI can do most of the work, what do you think humans are here for?",FALSE,1,#D6C7E7,1,,
+210,11,Future,3,"Work, Worth & the AI Economy",11_24,24,Why do you think people should work?,TRUE,10,#F08080,1,,
+211,11,Future,4,"Future Me: Real, Brave, and Still Human",11_25,25,"In a tech-filled future, what still excites you most?",TRUE,10,#ADD8E6,1,,
+212,11,Future,4,"Future Me: Real, Brave, and Still Human
+🎵[playlist:Theme Song]",11_26,26,What’s something you secretly hope to be amazing at?,TRUE,10,#98FB98,1,,
+213,11,Future,4,"Future Me: Real, Brave, and Still Human",11_27,27,What’s your biggest fear about the future?,TRUE,10,#B0C4DE,1,,
+214,11,Future,4,"Future Me: Real, Brave, and Still Human",11_28,28,What are you quietly building for your future self—something even smarter tech can’t touch?,TRUE,10,#F08080,1,,
+215,12,School,1,Ready or Not,12_1,1,"Back-to-school isn’t just supplies and schedules.
 It’s a whole emotional climate change.
 What’s your first day of school vibe?",FALSE,1,#ADD8E6,1,,
-212,12,School,1,Ready or Not,12_2,2,What went through your head when you saw your class seating chart?,FALSE,1,#FFB6C1,1,,
-213,12,School,1,Ready or Not,12_3,3,How different do you feel compared to last school year?,FALSE,1,#98FB98,1,,
-214,12,School,1,Ready or Not,12_4,4,What was your school vibe last year?,FALSE,1,#ADD8E6,1,,
-215,12,School,1,Ready or Not,12_5,5,Which school subjects do you actually enjoy? (Pick up to 3),TRUE,3,#98FB98,1,,
-216,12,School,1,Ready or Not,12_6,6,Which PE sports do you like most? (Pick up to 3),TRUE,3,#ADD8E6,1,,
-217,12,School,2,From pressure to preparation.,12_7,7,What stresses you the most?,TRUE,10,#F08080,1,,
-218,12,School,2,From pressure to preparation.,12_8,8,"When big tests come up, which part is hardest for you?",TRUE,10,#D6C7E7,1,,
-219,12,School,2,From pressure to preparation.,12_9,9,"When tests feel hard, what do you usually do?",TRUE,10,#FFAD84,1,,
-220,12,School,2,From pressure to preparation.,12_10,10,"In group projects, what tends to go wrong most often?",TRUE,10,#FFE066,1,,
-221,12,School,2,From pressure to preparation.,12_11,11,How do you handle it when the group stalls?,TRUE,10,#F08080,1,,
-222,12,School,2,From pressure to preparation.,12_12,12,When a group project falls apart but you did your part…,FALSE,1,#D6C7E7,1,,
-223,12,School,3,When You Speak Up,12_13,13,"In class discussions, what role do you usually take?",TRUE,10,#ADD8E6,1,,
-224,12,School,3,When You Speak Up,12_14,14,When the teacher asks a question and no one answers…,FALSE,1,#98FB98,1,,
-225,12,School,3,When You Speak Up,12_15,15,"If a teacher calls on you and you don’t know the answer, what do you do?",FALSE,1,#B0C4DE,1,,
-226,12,School,3,When You Speak Up,12_16,16,"If you give the wrong answer in class, what do you do next?",FALSE,1,#F08080,1,,
-227,12,School,3,When You Speak Up,12_17,17,You said something in class or in a group… and everyone just ignored it. What’s your first thought?,FALSE,1,#ADD8E6,1,,
-228,12,School,4,Between the Bells,12_18,18,"If you had to choose a vibe: cozy, chaotic, chill, or clever?",FALSE,1,#FFB6C1,1,,
-229,12,School,4,Between the Bells,12_19,19,Where do you feel most like yourself in school?,FALSE,1,#98FB98,1,,
-230,12,School,4,Between the Bells,12_20,20,What’s your usual hallway energy?,FALSE,1,#FFE066,1,,
-231,12,School,4,Between the Bells,12_21,21,"
+216,12,School,1,Ready or Not,12_2,2,What went through your head when you saw your class seating chart?,FALSE,1,#FFB6C1,1,,
+217,12,School,1,Ready or Not,12_3,3,How different do you feel compared to last school year?,FALSE,1,#98FB98,1,,
+218,12,School,1,Ready or Not,12_4,4,What was your school vibe last year?,FALSE,1,#ADD8E6,1,,
+219,12,School,1,Ready or Not,12_5,5,Which school subjects do you actually enjoy? (Pick up to 3),TRUE,3,#98FB98,1,,
+220,12,School,1,Ready or Not,12_6,6,Which PE sports do you like most? (Pick up to 3),TRUE,3,#ADD8E6,1,,
+221,12,School,2,From pressure to preparation.,12_7,7,What stresses you the most?,TRUE,10,#F08080,1,,
+222,12,School,2,From pressure to preparation.,12_8,8,"When big tests come up, which part is hardest for you?",TRUE,10,#D6C7E7,1,,
+223,12,School,2,From pressure to preparation.,12_9,9,"When tests feel hard, what do you usually do?",TRUE,10,#FFAD84,1,,
+224,12,School,2,From pressure to preparation.,12_10,10,"In group projects, what tends to go wrong most often?",TRUE,10,#FFE066,1,,
+225,12,School,2,From pressure to preparation.,12_11,11,How do you handle it when the group stalls?,TRUE,10,#F08080,1,,
+226,12,School,2,From pressure to preparation.,12_12,12,When a group project falls apart but you did your part…,FALSE,1,#D6C7E7,1,,
+227,12,School,3,When You Speak Up,12_13,13,"In class discussions, what role do you usually take?",TRUE,10,#ADD8E6,1,,
+228,12,School,3,When You Speak Up,12_14,14,When the teacher asks a question and no one answers…,FALSE,1,#98FB98,1,,
+229,12,School,3,When You Speak Up,12_15,15,"If a teacher calls on you and you don’t know the answer, what do you do?",FALSE,1,#B0C4DE,1,,
+230,12,School,3,When You Speak Up,12_16,16,"If you give the wrong answer in class, what do you do next?",FALSE,1,#F08080,1,,
+231,12,School,3,When You Speak Up,12_17,17,You said something in class or in a group… and everyone just ignored it. What’s your first thought?,FALSE,1,#ADD8E6,1,,
+232,12,School,4,Between the Bells,12_18,18,"If you had to choose a vibe: cozy, chaotic, chill, or clever?",FALSE,1,#FFB6C1,1,,
+233,12,School,4,Between the Bells,12_19,19,Where do you feel most like yourself in school?,FALSE,1,#98FB98,1,,
+234,12,School,4,Between the Bells,12_20,20,What’s your usual hallway energy?,FALSE,1,#FFE066,1,,
+235,12,School,4,Between the Bells,12_21,21,"
 For some, lunch's the best part of the day. For others, it’s like surviving a social obstacle course.
 How does lunchtime usually feel for you?",FALSE,1,#FFAD84,1,,
-232,12,School,4,Between the Bells,12_22,22,"If lunch isn’t your favorite that day, what’s your move?",TRUE,10,#D6C7E7,1,,
-233,12,School,4,Between the Bells,12_23,23,"At lunch, what do you usually prefer?",TRUE,10,#F08080,1,,
-234,12,School,5,Rethinking School ,12_24,24,What do you wish your teacher understood about you?,FALSE,1,#ADD8E6,1,,
-235,12,School,5,Rethinking School ,12_25,25,What do you think your teachers might be struggling with?,TRUE,10,#98FB98,1,,
-236,12,School,5,Rethinking School ,12_26,26,"The world is changing fast — and so is learning.
+236,12,School,4,Between the Bells,12_22,22,"If lunch isn’t your favorite that day, what’s your move?",TRUE,10,#D6C7E7,1,,
+237,12,School,4,Between the Bells,12_23,23,"At lunch, what do you usually prefer?",TRUE,10,#F08080,1,,
+238,12,School,5,Rethinking School ,12_24,24,What do you wish your teacher understood about you?,FALSE,1,#ADD8E6,1,,
+239,12,School,5,Rethinking School ,12_25,25,What do you think your teachers might be struggling with?,TRUE,10,#98FB98,1,,
+240,12,School,5,Rethinking School ,12_26,26,"The world is changing fast — and so is learning.
 If the people who design schools asked for your advice, what should school focus on to better help students?",TRUE,10,#B0C4DE,1,,
-237,13,Fun Stuff,1,Video Games,13_1,1,Which video games do you play the most?,FALSE,1,#F08080,1,,
-238,13,Fun Stuff,1,Video Games,13_2,2,Who do you play games with the most?,FALSE,1,#ADD8E6,1,,
-239,13,Fun Stuff,1,Video Games,13_3,3,What keeps you playing a game? What’s the hook? (Pick one or two),TRUE,2,#FFB6C1,1,,
-240,13,Fun Stuff,1,Video Games,13_4,4,When do you usually play video games?,FALSE,1,#98FB98,1,,
-241,13,Fun Stuff,2,Food,13_5,5,"If this were your last meal, what would you choose for your main course?",FALSE,1,#ADD8E6,1,,
-242,13,Fun Stuff,2,Food,13_6,6,"If this were your last meal, what would you choose for your drink?",FALSE,1,#FFAD84,1,,
-243,13,Fun Stuff,3,Music,13_7,7,Which music genre do you listen to the most? (Pick up to 3),TRUE,3,#F08080,1,,
-244,13,Fun Stuff,3,Music,13_9,9,What’s more important to you in a song? (Pick up to 2),TRUE,2,#D6C7E7,1,,
-245,13,Fun Stuff,4,Movies/Shows,13_10,10,What kind of shows or movies do you watch most? (Pick up to 3),TRUE,3,#ADD8E6,1,,
-246,13,Fun Stuff,4,Movies/Shows,13_11,11,Where do you usually watch movies or shows? (Pick up to 3),TRUE,3,#98FB98,1,,
-247,13,Fun Stuff,5,Sports,13_12,12,"Do you watch sports? If yes, what do you watch the most? (Pick 2)",TRUE,2,#B0C4DE,1,,
-248,14,Chaos,1,Bodily Betrayal 101,14_1,1,What do you do when you feel a fart coming during class?,FALSE,1,#F08080,1,,
-249,14,Chaos,1,Bodily Betrayal 101,14_2,2,What’s the worst time for your stomach to make a weird noise?,FALSE,1,#ADD8E6,1,,
-250,14,Chaos,1,Bodily Betrayal 101,14_3,3,What’s the worst time to sneeze?,FALSE,1,#FFB6C1,1,,
-251,14,Chaos,1,Bodily Betrayal 101,14_4,4,Which day is the worst to wake up with a giant pimple?,FALSE,1,#98FB98,1,,
-252,14,Chaos,2,Cringe & Chaos Edition,14_5,5,What do you do when you wave back—and realize it wasn’t for you?,FALSE,1,#FFE066,1,,
-253,14,Chaos,2,Cringe & Chaos Edition,14_6,6,What’s the dumbest reason your friend group has ever argued?,FALSE,1,#FFAD84,1,,
-254,14,Chaos,2,Cringe & Chaos Edition,14_7,7,"If your group had a TV show, what’s the first episode called?",FALSE,1,#98FB98,1,,
-255,14,Chaos,2,Cringe & Chaos Edition,14_8,8,What’s the snack rule at your sleepovers? ,FALSE,1,#D6C7E7,1,,
+241,13,Fun Stuff,1,Video Games,13_1,1,Which video games do you play the most?,FALSE,1,#F08080,1,,
+242,13,Fun Stuff,1,Video Games,13_2,2,Who do you play games with the most?,FALSE,1,#ADD8E6,1,,
+243,13,Fun Stuff,1,Video Games,13_3,3,What keeps you playing a game? What’s the hook? (Pick one or two),TRUE,2,#FFB6C1,1,,
+244,13,Fun Stuff,1,Video Games,13_4,4,When do you usually play video games?,FALSE,1,#98FB98,1,,
+245,13,Fun Stuff,2,Food,13_5,5,"If this were your last meal, what would you choose for your main course?",FALSE,1,#ADD8E6,1,,
+246,13,Fun Stuff,2,Food,13_6,6,"If this were your last meal, what would you choose for your drink?",FALSE,1,#FFAD84,1,,
+247,13,Fun Stuff,3,Music,13_7,7,Which music genre do you listen to the most? (Pick up to 3),TRUE,3,#F08080,1,,
+248,13,Fun Stuff,3,Music,13_9,9,What’s more important to you in a song? (Pick up to 2),TRUE,2,#D6C7E7,1,,
+249,13,Fun Stuff,4,Movies/Shows,13_10,10,What kind of shows or movies do you watch most? (Pick up to 3),TRUE,3,#ADD8E6,1,,
+250,13,Fun Stuff,4,Movies/Shows,13_11,11,Where do you usually watch movies or shows? (Pick up to 3),TRUE,3,#98FB98,1,,
+251,13,Fun Stuff,5,Sports,13_12,12,"Do you watch sports? If yes, what do you watch the most? (Pick 2)",TRUE,2,#B0C4DE,1,,
+252,14,Chaos,1,Bodily Betrayal 101,14_1,1,What do you do when you feel a fart coming during class?,FALSE,1,#F08080,1,,
+253,14,Chaos,1,Bodily Betrayal 101,14_2,2,What’s the worst time for your stomach to make a weird noise?,FALSE,1,#ADD8E6,1,,
+254,14,Chaos,1,Bodily Betrayal 101,14_3,3,What’s the worst time to sneeze?,FALSE,1,#FFB6C1,1,,
+255,14,Chaos,1,Bodily Betrayal 101,14_4,4,Which day is the worst to wake up with a giant pimple?,FALSE,1,#98FB98,1,,
+256,14,Chaos,2,Cringe & Chaos Edition,14_5,5,What do you do when you wave back—and realize it wasn’t for you?,FALSE,1,#FFE066,1,,
+257,14,Chaos,2,Cringe & Chaos Edition,14_6,6,What’s the dumbest reason your friend group has ever argued?,FALSE,1,#FFAD84,1,,
+258,14,Chaos,2,Cringe & Chaos Edition,14_7,7,"If your group had a TV show, what’s the first episode called?",FALSE,1,#98FB98,1,,
+259,14,Chaos,2,Cringe & Chaos Edition,14_8,8,What’s the snack rule at your sleepovers? ,FALSE,1,#D6C7E7,1,,
+260,14,Chaos,2,Cringe & Chaos Edition,14_9,9,You accidentally send a message about someone… to THAT person. What do you do?,TRUE,10,#FFE066,1,,
+261,3,Friends,6,Fitting In & Left Out,3_39,39,"When a friend hurts your feelings, do you know how to talk about it?",FALSE,1,#F08080,1,,

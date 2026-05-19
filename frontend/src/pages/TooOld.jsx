@@ -92,16 +92,13 @@ const TooOld = () => {
             <span style={styles.topic}>🌀 choices you made (or didn't)</span>
           </div>
           <div style={styles.parentsLinkContainer}>
-            <p style={styles.parentsLinkText}>
-              <strong>Ready to share your perspective?</strong>
-            </p>
             <a 
-              href="https://youth.myworldmysay.com" 
+              href="https://youth.myworldmysay.com/" 
               target="_blank" 
               rel="noopener noreferrer"
               style={styles.parentsLink}
             >
-              Visit Youth Poll →
+              Youth Poll →
             </a>
           </div>
         </div>

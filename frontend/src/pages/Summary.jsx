@@ -180,7 +180,7 @@ const Summary = () => {
 
         <div style={styles.futureNote}>
           <span style={styles.futureNoteIcon}>✨</span>
-          <span style={styles.futureNoteText}>Personalized AI summaries coming soon!</span>
+          <span style={styles.futureNoteText}>✨ More detailed personalized summaries coming soon!</span>
         </div>
 
         <div style={styles.buttonsContainer}>

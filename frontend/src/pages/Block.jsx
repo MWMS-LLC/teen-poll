@@ -115,7 +115,8 @@ const Block = () => {
     }
   }
 
-  const handleViewSummary = () => {
+  // Kept for future use - can be re-enabled by changing button onClick to use this function
+  const _handleViewSummary = () => {
     // Check if user has answered at least 2 questions in this category
     const categoryId = blockCode.split("_")[0]
     const userUuid = localStorage.getItem('user_uuid')
@@ -231,13 +232,13 @@ const Block = () => {
       {/* Navigation Buttons */}
       <div style={styles.backToBlocksContainer}>
         {isLastBlock ? (
-          /* Final block: Summary button only */
+          /* Final block: Back to Categories button */
           <button
-            style={styles.summaryButton}
-            onClick={handleViewSummary}
-            className="summary-button-hover"
+            style={styles.backToCategoriesButton}
+            onClick={handleNextBlock}
+            className="back-to-categories-hover"
           >
-            ✨ See Your Summary
+            ← Back to Categories
           </button>
         ) : (
           /* Regular blocks: Back to Blocks button */
@@ -501,6 +502,19 @@ const styles = {
     boxShadow: '0 4px 15px rgba(45, 125, 122, 0.3)',
     textTransform: 'none',
     letterSpacing: '0.5px'
+  },
+
+  backToCategoriesButton: {
+    padding: '12px 30px',
+    fontSize: '16px',
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.9)',
+    background: 'rgba(255, 255, 255, 0.1)',
+    border: '2px solid rgba(255, 255, 255, 0.3)',
+    borderRadius: '25px',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    minWidth: '250px'
   },
 
   summaryButton: {

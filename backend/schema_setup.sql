@@ -107,3 +107,25 @@ CREATE INDEX idx_soundtracks_featured ON soundtracks(featured, featured_order);
 CREATE INDEX idx_soundtracks_playlist ON soundtracks USING GIN(to_tsvector('english', playlist_tag));
 CREATE INDEX idx_soundtracks_mood ON soundtracks USING GIN(to_tsvector('english', mood_tag));
 
+-- ============================================================================
+-- FUTURE: Response Table Constraints (for reference)
+-- ============================================================================
+-- These constraints are defined in schema_results.sql, but included here for reference.
+-- If you want to enforce one vote per user per question in the future, uncomment these
+-- and add them to the responses/checkbox_responses tables in schema_results.sql.
+-- 
+-- IMPORTANT: Before adding these constraints, you must remove any duplicate rows first!
+--
+-- For responses table:
+-- ALTER TABLE responses ADD CONSTRAINT unique_user_question_response 
+--   UNIQUE (user_uuid, question_code);
+--
+-- For checkbox_responses table:
+-- ALTER TABLE checkbox_responses ADD CONSTRAINT unique_user_question_option_checkbox 
+--   UNIQUE (user_uuid, question_code, option_select);
+--
+-- For other_responses table:
+-- ALTER TABLE other_responses ADD CONSTRAINT unique_user_question_other 
+--   UNIQUE (user_uuid, question_code);
+-- ============================================================================
+

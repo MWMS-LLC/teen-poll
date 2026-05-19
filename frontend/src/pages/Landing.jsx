@@ -412,8 +412,10 @@ const Landing = () => {
       {/* Logo and Title Section */}
       <div style={styles.titleSection}>
         <div style={styles.logoContainer}>
-          <div style={styles.logoText}>My World My Say</div>
-          <div style={styles.logoGlow}></div>
+          <a href="https://myworldmysay.com" target="_blank" rel="noopener noreferrer" style={styles.logoLink}>
+            <div style={styles.logoText}>My World My Say</div>
+            <div style={styles.logoGlow}></div>
+          </a>
         </div>
         
         <div style={styles.taglineContainer}>
@@ -841,6 +843,11 @@ const styles = {
   logoContainer: {
     position: 'relative',
     marginBottom: '20px'
+  },
+  
+  logoLink: {
+    textDecoration: 'none',
+    color: 'inherit'
   },
   
   logoText: {
